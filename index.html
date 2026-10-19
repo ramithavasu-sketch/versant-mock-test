@@ -1,0 +1,1551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Versant Mock Test</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EEF2F6; --sheet:#FFFFFF; --ink:#1C2A3A; --muted:#5B6672; --line:#C9D2DC; --soft:#F5F7FA;
+  --ok:#2F7D4F; --okbg:#E6F3EB; --bad:#B33A3A; --badbg:#F8E7E7; --mark:#F2D45C; --accent:#2C5282; --onaccent:#FFFFFF;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px); color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#121A23; --sheet:#1A2430; --ink:#E4EAF1; --muted:#9AA6B3; --line:#33414F; --soft:#202C39;
+    --ok:#6CC08F; --okbg:#1D3327; --bad:#E58080; --badbg:#3A2224; --mark:#C9A93A; --accent:#8DB4E8; --onaccent:#0E1620; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121A23; --sheet:#1A2430; --ink:#E4EAF1; --muted:#9AA6B3; --line:#33414F; --soft:#202C39;
+  --ok:#6CC08F; --okbg:#1D3327; --bad:#E58080; --badbg:#3A2224; --mark:#C9A93A; --accent:#8DB4E8; --onaccent:#0E1620; color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 110px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:16px;line-height:1.5}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--sheet)}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--sheet);border-bottom:1px solid var(--line)}
+.bar{max-width:820px;margin:0 auto;padding:12px 20px 0}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+h1{font-family:"Source Serif 4",Georgia,serif;font-weight:600;font-size:1.3rem;margin:0}
+.speed{font-size:.85rem;color:var(--muted);display:flex;gap:6px;align-items:center}
+nav{display:flex;gap:2px;overflow-x:auto;margin-top:8px;scrollbar-width:thin}
+nav button{border:0;border-bottom:3px solid transparent;border-radius:0;background:none;padding:8px 12px;white-space:nowrap;color:var(--muted);font-weight:500}
+nav button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+button,select,textarea,input{font:inherit;color:var(--ink)}
+button,select{font-size:.875rem;border:1px solid var(--line);background:var(--sheet);border-radius:6px;padding:6px 12px;cursor:pointer}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--onaccent);font-weight:600}
+button:disabled{opacity:.45;cursor:default}
+button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+main{max-width:820px;margin:0 auto;padding:18px 20px 70px}
+h2{font-family:"Source Serif 4",Georgia,serif;font-weight:600;font-size:1.45rem;margin:0 0 4px}
+h3{font-family:"Source Serif 4",Georgia,serif;font-weight:600;font-size:1.1rem;margin:0 0 6px}
+.tip{color:var(--muted);margin:0 0 12px;max-width:68ch}
+.stats{display:flex;gap:18px;flex-wrap:wrap;font-size:.9rem;align-items:baseline}
+.stats b{font-size:1.1rem}.stats .ok b{color:var(--ok)}.stats .bad b{color:var(--bad)}
+.progress{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin:8px 0 12px;display:flex}
+.progress span{display:block;height:100%}.p-ok{background:var(--ok)}.p-bad{background:var(--bad)}
+.tools,.btns,.nav{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.card{background:var(--sheet);border:1px solid var(--line);border-radius:10px;padding:18px 20px;margin:14px 0}
+.cardtop{display:flex;justify-content:space-between;color:var(--muted);font-size:.85rem;margin-bottom:12px}
+.badge{border-radius:5px;padding:1px 8px;font-weight:600}
+.badge.ok{background:var(--okbg);color:var(--ok)}.badge.bad{background:var(--badbg);color:var(--bad)}
+.hint{color:var(--muted);font-size:.9rem;margin:0 0 12px}
+.serif{font-family:"Source Serif 4",Georgia,serif;font-size:1.12rem;line-height:1.8}
+.hidden{display:none}
+.out{margin-top:12px}
+.fb{border-radius:6px;padding:8px 12px;margin-top:12px}
+.fb.ok{background:var(--okbg);color:var(--ok)}.fb.bad{background:var(--badbg);color:var(--bad)}
+.fb .ans{color:var(--ink);display:block;margin-top:4px}
+.w.miss{color:var(--bad);text-decoration:underline wavy;text-underline-offset:4px;font-weight:600}
+.w.extra{color:var(--muted);text-decoration:line-through}
+.legend{font-size:.8rem;color:var(--muted);margin-top:6px}
+.blank{font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:1rem;background:transparent;border:0;border-bottom:2px solid var(--muted);border-radius:0;width:9.5em;max-width:100%;padding:0 4px 1px;margin:0 2px}
+.blank:focus{outline:none;background:color-mix(in srgb,var(--mark) 30%,transparent)}
+.textin{width:100%;border:1px solid var(--line);border-radius:6px;padding:9px 11px;background:var(--soft);font-size:1rem;margin-top:10px}
+textarea.textin{min-height:150px;resize:vertical;line-height:1.6}
+.line{min-height:52px;border:2px dashed var(--line);border-radius:8px;padding:8px;display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.line:empty::before{content:"Tap the phrases below in order";color:var(--muted);font-size:.9rem;align-self:center}
+.pool{display:flex;flex-wrap:wrap;gap:8px}
+.tile{background:var(--soft);border:1px solid var(--line);border-radius:18px;padding:6px 14px;font-size:.95rem}
+.line .tile{background:color-mix(in srgb,var(--accent) 14%,var(--sheet));border-color:var(--accent)}
+.conv p{margin:4px 0}.conv .who{color:var(--muted);font-size:.8rem;margin-right:6px}
+.passage{background:var(--soft);border-left:3px solid var(--accent);padding:12px 16px;border-radius:0 8px 8px 0;margin:10px 0}
+.timer{font-variant-numeric:tabular-nums;font-weight:600;margin:8px 0;color:var(--accent)}
+.compare{display:grid;gap:12px;margin-top:12px}
+.compare div{background:var(--soft);border-radius:8px;padding:10px 14px}
+.compare small{display:block;color:var(--muted);font-weight:600;margin-bottom:4px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin-top:14px}
+.tilecard{background:var(--sheet);border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+.tilecard .skill{color:var(--muted);font-size:.8rem}
+.tilecard p{margin:0;font-size:.9rem;color:var(--muted);flex:1}
+.mini{height:5px;background:var(--line);border-radius:3px;overflow:hidden;display:flex}
+.note{background:var(--sheet);border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin-top:16px;font-size:.92rem}
+.note ul{margin:6px 0 0;padding-left:20px}
+.key h3{margin-top:26px}
+.key ol{padding-left:2.4em;margin:6px 0}
+.key li{margin:4px 0;line-height:1.55}
+.key .a{color:var(--ok);font-weight:600}
+.key .sub{color:var(--muted);font-size:.88rem}
+.empty{padding:24px;text-align:center;color:var(--muted)}
+@media (max-width:560px){.card{padding:14px}.serif{font-size:1.02rem}}
+@media print{header,.noprint{display:none!important}body{background:#fff;color:#000}main{padding:0}}
+/* ---------- mock test ---------- */
+.intest nav{display:none}
+.mk-cta{display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:var(--sheet);border:1px solid var(--accent);border-radius:10px;padding:14px 18px;margin-bottom:18px}
+.mk-cta span{color:var(--muted);font-size:.92rem}
+.mk-opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:12px 0}
+.mk-opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--sheet);cursor:pointer}
+.mk-opt:has(input:checked){border-color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,var(--sheet))}
+.mk-opt input{margin-top:4px;accent-color:var(--accent)}
+.mk-opt small{display:block;color:var(--muted)}
+.mk-table{width:100%;border-collapse:collapse;font-size:.92rem;margin:8px 0}
+.mk-table th,.mk-table td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+.mk-table th{color:var(--muted);font-weight:500;font-size:.8rem;text-transform:uppercase;letter-spacing:.04em}
+.mk-table td.n{font-variant-numeric:tabular-nums;white-space:nowrap}
+.tblwrap{overflow-x:auto}
+.mk-mic{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:8px}
+.pill{display:inline-block;border-radius:999px;padding:2px 10px;font-size:.8rem;font-weight:600;background:var(--soft);color:var(--muted)}
+.pill.ok{background:var(--okbg);color:var(--ok)}.pill.bad{background:var(--badbg);color:var(--bad)}
+.mk-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+.mk-part{font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
+.mk-stage{min-height:230px;display:flex;flex-direction:column;gap:12px}
+.mk-status{display:flex;align-items:center;gap:10px;font-weight:600;font-size:1.05rem}
+.dot{width:12px;height:12px;border-radius:50%;background:var(--line);flex:none}
+.dot.listen{background:var(--accent);animation:pulse 1.2s infinite}
+.dot.speak{background:var(--bad);animation:pulse .9s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.75)}}
+@media (prefers-reduced-motion:reduce){.dot.listen,.dot.speak{animation:none}}
+.cd{height:6px;background:var(--line);border-radius:3px;overflow:hidden}
+.cd span{display:block;height:100%;background:var(--accent);transition:width 1s linear}
+.cdtxt{font-variant-numeric:tabular-nums;font-size:.85rem;color:var(--muted)}
+.heard{color:var(--muted);font-size:.9rem;font-style:italic;min-height:1.4em}
+.mk-overall{display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center}
+.mk-big{font-family:"Source Serif 4",Georgia,serif;font-size:4rem;line-height:1;font-weight:600;font-variant-numeric:tabular-nums}
+.mk-big small{font-size:1rem;color:var(--muted);font-weight:400}
+.mk-cefr{font-size:1.1rem;font-weight:600;color:var(--accent)}
+.skill{display:grid;grid-template-columns:110px 1fr 44px;gap:10px;align-items:center;margin:12px 0}
+.skill .nm{font-weight:600}
+.skill .sc{font-variant-numeric:tabular-nums;font-weight:600;text-align:right}
+.track{position:relative;height:12px;background:var(--soft);border:1px solid var(--line);border-radius:6px}
+.track .fill{position:absolute;inset:0 auto 0 0;background:var(--accent);border-radius:6px}
+.track .tk{position:absolute;top:-3px;bottom:-3px;width:1px;background:var(--muted);opacity:.5}
+.bands{position:relative;height:16px;font-size:.7rem;color:var(--muted);margin-left:120px;margin-right:54px}
+.bands span{position:absolute;transform:translateX(-50%)}
+.mk-traits{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+.mk-traits div{background:var(--soft);border-radius:8px;padding:8px 12px;font-size:.88rem}
+.mk-traits b{font-variant-numeric:tabular-nums}
+details.rev{border-top:1px solid var(--line);padding:8px 0}
+details.rev summary{cursor:pointer;font-weight:600}
+.ritem{padding:8px 0;border-bottom:1px dashed var(--line);font-size:.92rem}
+.ritem:last-child{border-bottom:0}
+.ritem .q{color:var(--muted)}
+.ritem .you{display:block}
+.hist button{width:100%;text-align:left;display:flex;justify-content:space-between;gap:10px;margin:6px 0}
+@media (max-width:560px){.mk-overall{grid-template-columns:1fr}.skill{grid-template-columns:84px 1fr 38px}.bands{margin-left:94px;margin-right:48px}.mk-big{font-size:3.2rem}}
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <div class="top">
+      <h1>Versant practice</h1>
+      <div class="speed" style="flex-wrap:wrap">
+        <label class="speed" id="voiceWrap">Voice <select id="voice" style="max-width:200px"></select></label>
+        <label class="speed">Speed <select id="rate"><option value="0.75">Slow</option><option value="0.9" selected>Normal</option><option value="1.05">Fast</option></select></label>
+        <button id="testVoice">Test voice</button>
+      </div>
+    </div>
+    <nav id="tabs" role="tablist" aria-label="Sections"></nav>
+  </div>
+</header>
+<main id="main"></main>
+<script>
+const REPEAT = [
+"Do you know what’s wrong with the printer?",
+"Where is the company’s mail room?",
+"You are allowed 30 minutes for a lunch break.",
+"I’m pretty sure that we can meet the deadline.",
+"You can count on me.",
+"Here is my business card, so be sure to call.",
+"The files for the company are on the external drive.",
+"Please put that letter back on my desk.",
+"The train station is at the end of this road.",
+"You need to ask permission to leave work early.",
+"I need to stop at the store on the way home.",
+"I left my umbrella on the train.",
+"The discount doesn’t apply to postage and packaging costs.",
+"The new computer system is very efficient and powerful.",
+"All employees will be assigned additional duties.",
+"It is company policy that uniforms should always be cleaned and pressed.",
+"Are you sure it’s not a problem?",
+"The copy machine is broken again.",
+"I’ll send the document to you by mail.",
+"I always arrive a little early for work.",
+"All employees are allowed to wear casual clothes on Friday.",
+"Are you free to talk now?",
+"I forgot to bring my phone with me today.",
+"I’m afraid I’m busy with other things right now.",
+"Could I please have your contact information?",
+"After he had all the facts, he ended up changing his opinion.",
+"Please put the file back in the cabinet when you are finished.",
+"She’s just stepped out. Can I take a message?",
+"How many employees are going to go to the conference?",
+"I’m not reading that book, so you can borrow it.",
+"Just tell my assistant and he’ll take care of it.",
+"I’ve been having some problems with my computer today.",
+"Let’s eat at the new restaurant on the way home.",
+"Is there a special phone number for customer services?",
+"We need to get this done by Friday at the latest.",
+"It will take 9 more months to finish the inside of the building.",
+"He just wanted to check in to see whether there had been any improvement.",
+"Shipping and handling cost an additional $10.",
+"She is able to repair almost anything.",
+"Representatives may not share their personal information with customers.",
+"They are creating a model for a new, more powerful system.",
+"The conference room is becoming very disorganized.",
+"Are you going to apply for a new job?",
+"He’s worked for the same company for almost 20 years.",
+"We wanted to thank everyone for a job well done.",
+"I’ll have another assignment for you on Monday.",
+"The issue is a low priority right now.",
+"I’ve been meaning to speak to her about that.",
+"We’ve made special arrangements for the additional number of customers.",
+"With all the programs available, it can be hard to know which to choose.",
+"I emailed the document to him yesterday.",
+"This office is such a mess.",
+"Sorry, but I’m running a bit late.",
+"The volume of the speaker wasn’t loud enough.",
+"I’m sorry, but that item is out of stock.",
+"Everyone tried to act like nothing had happened.",
+"Check in at the reception desk before you sit down.",
+"Over the last 20 years, this company has changed a lot.",
+"The electrician said that he would call tomorrow with the estimate.",
+"Have you taken a break yet?",
+"Sorry, I must have dialed the wrong number.",
+"Where is the exit nearest to the office?",
+"The technology sector is growing in this country.",
+"You will need to speak to the director about that.",
+"Which jacket is yours?",
+"Exit through the door on your left.",
+"She wanted to know whether the price included meals.",
+"You need final written approval for the project.",
+"Management reserves the right to refuse service to anyone.",
+"I nearly missed the train this morning.",
+"How are we going to be able to fit all of this on one page?",
+"Many people feel nervous before speaking in front of a group.",
+"His flight leaves for London at 10:30 pm.",
+"The authors of this book wanted to add more drawings.",
+"Orders placed over the telephone must be collected at customer service.",
+"The reason for that policy was never clear to me.",
+"Please bring two reference letters with you to the interview.",
+"Would you be willing to take a cut in pay to learn a new job?",
+"The pay raise was too low for me to continue working there.",
+"Would you please send me the package as soon as possible?",
+"Operating expenses for the quarter were less than budgeted.",
+"Call centers are springing up all over this area.",
+"I know I won’t be able to get away before 6:30.",
+"Everyone knows they made a large profit on that deal.",
+"She reminded me to send the invoice two weeks ago.",
+"After July 31st, our service charges will have to be increased.",
+"We offer discounts for companies that make larger purchases.",
+"Late charges will be added to your bill after the 15th.",
+"Surprisingly, Carmen managed to get enough money together for her trip.",
+"The repair project is going to cost $5,000 altogether.",
+"What time do you usually wake up in the morning?",
+"I’d like to have one too.",
+"The letter needs to get there by Thursday.",
+"Take some time to think about the situation before you respond.",
+"Refusing to follow the dress code can result in suspension and loss of pay.",
+"Stealing from the company is grounds for immediate dismissal.",
+"I think I’ll have one as well.",
+"Take a little time to think about the options available.",
+"Where is the ink cartridge for the printer?",
+"You don’t like my ideas, but can you suggest something better?",
+"The delivery arrived yesterday at 5 pm.",
+"I’d like to take three vacation days next week.",
+"She’ll be working from home for the rest of the week.",
+"I’m going to need help to finish this on time.",
+"Here is my email address and phone number.",
+"That was on my desk, so can you please put it back?",
+"She needed to read the documents before attending the meeting.",
+"He just started work last week.",
+"She has 10 people reporting to her now.",
+"Can you give me the status of your progress so far?",
+"Please give me a draft by the end of next week.",
+"He said that it was sent by registered mail.",
+"She used to be one of my coworkers.",
+"I think I’ll take the day off tomorrow.",
+"He has 10 years’ experience in this line of work.",
+"Please analyze all of the data completely for your review.",
+"Do you have the weekly report on the integration project?",
+"He is going to be busy every single day next week.",
+"She’ll be available to take our call only after 2:30 pm.",
+"I’m afraid I won’t be able to read it until the weekend.",
+"Can you come right over to my office?",
+"He worked an hour late yesterday, so he’ll arrive an hour later today.",
+"Your sick days cannot be carried forward to next year.",
+"She wanted to know whether she could do it later.",
+"I consider him to be very reliable.",
+"She has never let us down before now.",
+"What is the deadline for this report?",
+"Do you know any good places to eat near here?",
+"There’s a bank right across the street from the office.",
+"He left his laptop at a friend’s house.",
+"I need to know what you’re planning to do next week.",
+"What’s the status of the marketing program?",
+"I’m afraid I can’t hear you very well.",
+"I’ll be sure that she gets your message today.",
+"He was pleased to receive our response to his proposal.",
+"The report indicates trends in the business sector.",
+"Twenty years ago, informality in business was not acceptable.",
+"All employees are kindly requested to refrain from smoking.",
+"There’s no point in trying to add more information.",
+"Important topics should never be mentioned after the close of a meeting.",
+"The president decided not to attend the conference.",
+"Their products are always of very high quality.",
+"All of these articles need to be inspected before shipment.",
+"You can’t access that computer software right now.",
+"The development manager needs to allow enough room for new employees.",
+"Computers should be turned off at the end of the day.",
+"The report should have been spell checked.",
+"He spent hours editing that document before he sent it.",
+"I see from your resume that you were a manager in your last job.",
+"Can you please tell us something about your plans for the future?",
+"We sometimes have to deal with disappointed or angry customers.",
+"He was fired because he always handed his work in late.",
+"There is a large difference between the money needed and the money available.",
+"When you retire, you may be eligible for a pension.",
+"People put money into a business in the hope of making a profit.",
+"In the end, we’ll need to earn some money from the investment.",
+"There is still an outstanding balance on that account.",
+"This failure is a good example of what not to do.",
+"Plans are already in place to deal with the situation.",
+"With all the good programs available, it is difficult to make a quick decision.",
+"The search for qualified software engineers is truly difficult.",
+"Roads through woods can be scary when there is no light.",
+"Somebody told me to speed up.",
+"Bob and Tom talked all day.",
+"These plates and glasses would make a fine present.",
+"Do you accept credit cards?",
+"The temperatures in North India are soaring.",
+"Which do you like better, books or movies?",
+"Why didn’t you reserve a larger picnic area?",
+"Famous people are rarely seen on the street.",
+"During construction, all offices will remain open.",
+"His vision of the future is quite frightening.",
+"I can’t believe how quickly those light bulbs need to be replaced.",
+"Please look over the terms of the agreement by Friday.",
+"One of those light bulbs hasn’t been working for weeks.",
+"The book is so interesting that you won’t want to miss a word.",
+"We had a really delicious meal at the Italian restaurant near the art museum.",
+"Would you please ask Rakesh to come to my office?",
+"Please join us for lunch next Tuesday.",
+"I need help with the new printer.",
+"How long have you been studying French?",
+"Have you had breakfast yet?",
+"I’m sorry, he just stepped out for a moment.",
+"I can offer you an upgrade.",
+"Are there any customer support services available?",
+"We can’t offer that, but there is something I can do.",
+"The pay was too low for me to work there anymore.",
+"Could you send the parts over as soon as possible?",
+"When you go for an interview, be sure you’re comfortably dressed.",
+"If you find any errors in this, be sure to let the operator know.",
+"They are trying to fix their problems, but so far they have had no luck.",
+"Almost all liked the snacks served.",
+"It took several months.",
+"Do you have time to talk?",
+"This report seems to be out of date.",
+"The job is exciting but demands a lot of time.",
+"Let’s stop at the bank on the way home.",
+"We have a corporate program for those interested in larger purchases.",
+"A plane leaves for Paris at 9:15 am.",
+"Leave town on the next train.",
+"He can fix anything.",
+"I’m never late for work.",
+"I start my new job next week.",
+"I left my hat in the restaurant.",
+"Hire him immediately.",
+"Where is the exit located?",
+"In this area, agriculture is the major industry.",
+"This model is currently out of stock.",
+"After January 1st, the rates will be lowered considerably.",
+"Shipping and handling costs are not included in the price.",
+"This floor plan is not only larger but also more conveniently laid out.",
+"Please join us next spring for our annual conference in New York City.",
+"Do you have final written approval for the project?",
+"Please take the car; you have to pay for parking.",
+"Let’s try to get this done by the end of the week.",
+"As a matter of policy, representatives may not give their names to customers.",
+"Surprisingly, he managed to raise funds for the repair project.",
+"I have a good idea.",
+"Enter through the door on the right.",
+"How many people do you expect to attend the meeting?",
+"If you are not registered, please complete the information given below.",
+"The books on the shelf are well organized.",
+"Exit on your left.",
+"This letter must be delivered by tomorrow.",
+"Are you willing to relocate?",
+"I tried to do my best.",
+"Do you have any references?",
+"Highly motivated people are needed in our company.",
+"It’s been cloudy all week.",
+"The bus is running late.",
+"Is this the right price?",
+"I rarely drink milk.",
+"Let’s wash the dishes before we leave.",
+"Is there any more tea?",
+"Beans are my favorite vegetable.",
+"I saw him yesterday but not today.",
+"The roads are slippery, so be careful.",
+"Do you like this yellow shirt?",
+"I’ll have to pay a fine because my library books are overdue.",
+"The new office is across the street from the café.",
+"Can you tell them we are going to be late?",
+"I always wanted to learn how to play the guitar.",
+"Now that school has started again, the extra buses will run every Thursday morning.",
+"Most teaching staff make their lecture notes available online.",
+"Sydney is Australia’s largest city, chief port, and cultural center.",
+"There will be a conference here next summer on using the web for academic research.",
+"The university has a world-renowned school of archaeology.",
+"Successful applicants will work with a large team of researchers.",
+"Higher numbers of patients were infected during the previous outbreak of the illness.",
+"The final year will consist of four core courses and one project.",
+"He started his tutorial presentation right on time.",
+"The nearest automatic teller is in front of the lab.",
+"Newspapers are supported primarily by the sale of advertising space.",
+"Read the instructions carefully before you start writing your essay.",
+"Students should submit two copies of their dissertation to the department office by Friday.",
+"All students must sign the attendance register before leaving the lecture hall.",
+"Today’s lecture on modern American literature has been cancelled.",
+"All students must attend a safety lecture before they are allowed to use the laboratory.",
+"This college has a good reputation for both its research and its teaching.",
+"Next week the department secretary will email you with the details of your tutorial groups.",
+"Students who’d like to help produce the college newspaper should come to a meeting tomorrow.",
+"The library will stay open until midnight during the exam period.",
+"There are many reasons why knowing several languages is a major career advantage.",
+"There is considerable disagreement about the main cause of the revolution.",
+"Even though John is away, we can still use his car.",
+"His car is being repaired.",
+"Many subscribers prefer to receive information by email.",
+"The landlord never does repairs.",
+"These perspectives are very different from one another.",
+"You are very lucky to have loyal customers.",
+"I think it will be closed on Thursday.",
+"This office desk needs to be cleaned.",
+"We couldn’t be happier with the news.",
+"He really wants the promotion.",
+"Please tell me which items are in stock.",
+"This job description is explained nicely.",
+"We made special reservations for our new international clients.",
+"I don’t mind giving you a lift.",
+"Do you have overnight delivery service?",
+"Let’s keep the conversation fairly brief.",
+"I hope they can extend the deadline.",
+"Are you going away next month?",
+"There are many people on the beach today.",
+"The operating expenses for this year are higher than the budget allowed.",
+"His desk area and bookshelves are always well organized.",
+"If you are worried, just give her a call.",
+"We have to sell a lot in Japan.",
+"It’s not too late to change your mind.",
+"I haven’t seen her in over ten years.",
+"With experience, you can improve your project estimates.",
+"Have you tried applying for a job?",
+"They wrote down each other’s phone numbers.",
+"Are you dreaming of a career in healthcare?",
+"I think I’ll buy this hat too.",
+"The alarm isn’t loud enough.",
+"It would take six months to complete the construction of the new office.",
+"Their explanation would be easier to understand if they had presented it more slowly.",
+"We almost missed the train.",
+"By the middle of the morning, half of the sales team had already left.",
+"I heard that they made quite large profits from the sale.",
+"How long do you think we have to wait?",
+"My parents had a karaoke machine.",
+"Have you ever tried Mexican food?",
+"People really shouldn’t text while they are walking.",
+"Well, I’m interviewing for the position of production assistant.",
+"Good afternoon, do you have a reservation with us?",
+"Would it be possible to use the computer in your business center to research these hotels?",
+"I missed my flight to Tokyo because my cab got stuck in traffic.",
+"Would it be possible to have the suitcase replaced by the airline?",
+"Actually, I read somewhere that banner ads do influence people.",
+"Everyone has an opinion about what the city should be spending money on.",
+"First, I want to talk about the ways that you can prepare yourself to ask for a raise or promotion.",
+"It’s raining at the moment.",
+"It’s supposed to rain tomorrow, isn’t it?",
+"Their loud talking annoyed people seated nearby.",
+"The flat next door is for sale.",
+"Bring your resume and list of references to the meeting.",
+"Don’t eat while you are working.",
+"The company is having a party for all employees this weekend.",
+"It’s the right thing to do in my opinion.",
+"The most practical choice is a policy that will cover your liabilities.",
+"Late charges will be added after the 10th.",
+"Your business card should arrive soon.",
+"My sister’s company was established quite some time ago.",
+"Please cross-check all reports before sending the email.",
+"Today’s workshop will take place a little earlier than we thought.",
+"My friend, who has lived in New York all his life, took me on a personal tour of the city.",
+"I have an interview tomorrow. I’m a little nervous.",
+"It looks like a very peaceful activity.",
+"People listen to her."
+];
+
+const BUILDS = [
+[["staying here","how long","are you"],["How long are you staying here?"]],
+[["of your family","any pictures","do you have"],["Do you have any pictures of your family?"]],
+[["of mine","he is","a friend"],["He is a friend of mine."]],
+[["next door","is for sale","the house"],["The house next door is for sale."]],
+[["that mess","his brother","cleaned up"],["His brother cleaned up that mess."]],
+[["you should select","your family’s needs","insurance that suits"],["You should select insurance that suits your family’s needs."]],
+[["available later today","the new training","schedule will be"],["The new training schedule will be available later today."]],
+[["our recent report","in detail","describes the findings"],["Our recent report describes the findings in detail."]],
+[["are they","where","going"],["Where are they going?"]],
+[["all the","were broken","windows"],["All the windows were broken."]],
+[["some old friends","to see","we are going"],["We are going to see some old friends."]],
+[["that building","internet access","has limited"],["That building has limited internet access."]],
+[["left immediately","after the meeting ended","the salesman"],["The salesman left immediately after the meeting ended."]],
+[["what had occurred","in their absence","they discovered"],["They discovered what had occurred in their absence."]],
+[["the horse","the cowboy","rides on"],["The cowboy rides on the horse."]],
+[["the falling","very pretty","leaves are"],["The falling leaves are very pretty."]],
+[["the dishes","did you","finish cleaning"],["Did you finish cleaning the dishes?"]],
+[["to the library","Eric once","drove"],["Eric once drove to the library."]],
+[["rain today","it is going to","I think"],["I think it is going to rain today."]],
+[["what movie","last night","did you watch"],["What movie did you watch last night?"]],
+[["yourself","it","do"],["Do it yourself."]],
+[["in","bed","stay"],["Stay in bed."]],
+[["all the coffee","he","drank"],["He drank all the coffee."]],
+[["for the test","studied a lot","I"],["I studied a lot for the test."]],
+[["she didn’t notice","the book","who took"],["She didn’t notice who took the book."]],
+[["I haven’t been","restaurant","to a Japanese"],["I haven’t been to a Japanese restaurant."]],
+[["was my sister","who","called me","the person"],["The person who called me was my sister."]],
+[["we wondered","would fit in here","whether the new piano"],["We wondered whether the new piano would fit in here."]],
+[["the packet","tomorrow morning","will be sent"],["The packet will be sent tomorrow morning.","Tomorrow morning the packet will be sent."]],
+[["I have","my homework","finished"],["I have finished my homework."]],
+[["the samples","last week","were delivered"],["The samples were delivered last week.","Last week the samples were delivered."]],
+[["was reading","my mother","her favourite magazine"],["My mother was reading her favourite magazine."]],
+[["very old","is","this house"],["This house is very old."]],
+[["for her birthday","I sent my mother","some flowers"],["I sent my mother some flowers for her birthday.","For her birthday I sent my mother some flowers."]],
+[["for $8,000","he had sold","his small farm"],["He had sold his small farm for $8,000."]],
+[["in his direction","I looked","for a second"],["I looked in his direction for a second.","I looked for a second in his direction."]],
+[["my boss","to London","moved"],["My boss moved to London."]],
+[["to their leader","listen carefully","the young men"],["The young men listen carefully to their leader."]],
+[["real smiles and fake smiles","by different parts of the brain","are controlled"],["Real smiles and fake smiles are controlled by different parts of the brain."]],
+[["of those weeks","had one","have you ever"],["Have you ever had one of those weeks?"]],
+[["requires some preparation","at a job interview","making a good impression"],["Making a good impression at a job interview requires some preparation."]],
+[["shows respect","being punctual","in Korea"],["Being punctual in Korea shows respect.","In Korea being punctual shows respect."]],
+[["you should","about your experience and qualifications","speak"],["You should speak about your experience and qualifications."]],
+[["your business card directly","to present","remember"],["Remember to present your business card directly."]],
+[["haven’t you","abroad","you’ve lived"],["You’ve lived abroad, haven’t you?"]],
+[["for myself","to buy one","I’d like"],["I’d like to buy one for myself."]],
+[["many farmers","growing corn","stopped"],["Many farmers stopped growing corn."]],
+[["the green ones","than the blue ones","are more expensive"],["The green ones are more expensive than the blue ones."]],
+[["receive a bonus","the workers","will not"],["The workers will not receive a bonus."]],
+[["that my computer","sometimes I wish","would be more reliable"],["Sometimes I wish that my computer would be more reliable."]],
+[["next week","when does","the workshop start"],["When does the workshop start next week?"]],
+[["for a large bowl","of chicken soup","the customer asked"],["The customer asked for a large bowl of chicken soup."]],
+[["you should","while working","not eat"],["You should not eat while working."]],
+[["where should","this weekend","we go"],["Where should we go this weekend?"]],
+[["the weather","nice","should be"],["The weather should be nice."]],
+[["to the airport","take him","she will"],["She will take him to the airport."]],
+[["report is","due today","that financial"],["That financial report is due today."]],
+[["she was ready","to begin the trial","the judge told them"],["The judge told them she was ready to begin the trial."]],
+[["we","leaving","are"],["We are leaving."]],
+[["working","that radio","has stopped"],["That radio has stopped working."]],
+[["long ago","were born","my grandparents"],["My grandparents were born long ago."]],
+[["open","please leave","the door"],["Please leave the door open."]],
+[["to the radio","listening","I am"],["I am listening to the radio."]],
+[["doing","how are","you"],["How are you doing?"]],
+[["singer","who is","your favourite"],["Who is your favourite singer?"]],
+[["this milk","very good","doesn’t taste"],["This milk doesn’t taste very good."]],
+[["can’t stay","there","she"],["She can’t stay there."]],
+[["worried","about his father","Raj"],["Raj worried about his father."]],
+[["advised her","to go to bed","the doctor"],["The doctor advised her to go to bed."]],
+[["me","later","call"],["Call me later."]],
+[["as many videos","he will make","as he can"],["He will make as many videos as he can."]],
+[["from Mumbai","the flight","is delayed"],["The flight from Mumbai is delayed."]],
+[["easily offended","not","I am"],["I am not easily offended."]],
+[["had been working","your team","the hardest"],["Your team had been working the hardest."]],
+[["was asleep","by then","nearly everybody"],["Nearly everybody was asleep by then.","By then nearly everybody was asleep."]],
+[["has been delivered","he doesn’t know","if the letter"],["He doesn’t know if the letter has been delivered."]],
+[["into this country","three teenagers","brought the rare painting"],["Three teenagers brought the rare painting into this country."]],
+[["was listening to","my sister","her favourite music"],["My sister was listening to her favourite music."]],
+[["has been repaired","by her daughter","the computer"],["The computer has been repaired by her daughter."]],
+[["a lockdown","it was","we thought"],["We thought it was a lockdown."]],
+[["so small","is","the world"],["The world is so small."]],
+[["have been","it could","something else"],["It could have been something else."]],
+[["or cancelled","the concert","will be postponed"],["The concert will be postponed or cancelled."]],
+[["in charge of","he is","the employees’ orientation"],["He is in charge of the employees’ orientation."]],
+[["your support","we need","urgently"],["We need your support urgently.","Urgently we need your support."]],
+[["this credit card","very soon","will expire"],["This credit card will expire very soon."]],
+[["is offering","a very special lunch","the company cafeteria"],["The company cafeteria is offering a very special lunch."]],
+[["a week since","she called me","it’s been"],["It’s been a week since she called me."]],
+[["the missing money","Mark","wondered about"],["Mark wondered about the missing money."]],
+[["someone to lead","the group","let’s choose"],["Let’s choose someone to lead the group."]],
+[["our technology","has won numerous","awards"],["Our technology has won numerous awards."]],
+[["the progress report","will be given","out on Friday"],["The progress report will be given out on Friday."]],
+[["did you hear","was sold","that the company"],["Did you hear that the company was sold?"]],
+[["her plane","an hour late","had arrived"],["Her plane had arrived an hour late."]],
+[["and patience","takes confidence","negotiating a salary"],["Negotiating a salary takes confidence and patience."]],
+[["you again","to see","I didn’t expect"],["I didn’t expect to see you again."]],
+[["additional help","we may need","during the holidays"],["We may need additional help during the holidays.","During the holidays we may need additional help."]],
+[["nobody truly understood","what she expected","her staff to do"],["Nobody truly understood what she expected her staff to do."]],
+[["David","for business","travels frequently"],["David travels frequently for business."]],
+[["a local hotel","a 30% discount","has agreed to offer"],["A local hotel has agreed to offer a 30% discount."]],
+[["this booklet","what you need","clearly describes"],["This booklet clearly describes what you need."]],
+[["of every transaction","the two secretaries","kept an accurate record"],["The two secretaries kept an accurate record of every transaction."]],
+[["you can","a password","easily create"],["You can easily create a password."]],
+[["I am amazed","how fast","you learned this"],["I am amazed how fast you learned this."]],
+[["has fortunately","become vacant","the office nearby"],["The office nearby has fortunately become vacant."]],
+[["there are","problems to discuss","a lot of"],["There are a lot of problems to discuss."]],
+[["were unwilling to help","and her assistant","the manager"],["The manager and her assistant were unwilling to help."]],
+[["to fix the paper jam","of the machine","open the top cover"],["Open the top cover of the machine to fix the paper jam."]],
+[["your name","on the front page","make sure you write"],["Make sure you write your name on the front page."]],
+[["prices","these","are high"],["These prices are high."]]
+];
+
+const CONV = [
+{l:["Where are my keys?","They’re right beside the newspaper.","Okay. Thanks!"],q:"Where are the woman’s keys?",a:"Beside the newspaper.",k:[["newspaper"]]},
+{l:["Are you from Boston?","Yes, my family still lives there. It’s so much nicer than New York."],q:"Where does the man’s family live?",a:"In Boston.",k:[["boston"]]},
+{l:["Would you like to come to the movie with me?","I can’t. I’m expecting a delivery.","Never mind. I understand."],q:"Why can’t the woman go to the movie?",a:"She is expecting a delivery.",k:[["deliver","package","parcel"]]},
+{l:["I want to eat a cheeseburger.","Are you going to get something to drink with it?","Lemonade would be great."],q:"What will the woman order to drink?",a:"Lemonade.",k:[["lemonade"]]},
+{l:["Do you give any money to charity?","I do. I donate to the Cancer Society.","That’s really great."],q:"Where does the man donate?",a:"To the Cancer Society.",k:[["cancer"]]},
+{l:["Let’s meet in front of the café on Saturday.","Sounds good to me. What time?","At 3 o’clock."],q:"Where will they meet on Saturday?",a:"In front of the café.",k:[["cafe","coffee"]]},
+{l:["Can I bring something to your dinner?","Could you bring some butter for the bread?","Sure. No problem."],q:"What will the man bring?",a:"Butter for the bread.",k:[["butter"]]},
+{l:["I’m going to have to change my travel plans.","Why’s that?","I need to leave a couple of days later."],q:"What does the man need to change?",a:"His travel plans.",k:[["plan","travel","trip"]]},
+{l:["I finished cleaning the house already.","How did you get it done so quickly?","I did part of it yesterday."],q:"What did the woman finish?",a:"Cleaning the house.",k:[["clean","house"]]},
+{l:["They should be done with the garden on Monday.","That seems impossible. There’s still a lot left to do.","I know. I think so too."],q:"What should be done on Monday?",a:"The garden.",k:[["garden"]]},
+{l:["My toilet doesn’t work.","Have you said anything to your landlord?","Yes, he’s sending a plumber to repair it tonight."],q:"What problem did the woman tell her landlord about?",a:"Her toilet doesn’t work.",k:[["toilet"]]},
+{l:["Where’s the nearest exit?","There’s one next to the elevator.","Okay. Thanks."],q:"What is located next to the elevator?",a:"The nearest exit.",k:[["exit"]]},
+{l:["Where are my glasses?","I think they’re on the table.","All right, thank you."],q:"Where are the woman’s glasses?",a:"On the table.",k:[["table"]]},
+{l:["My coffee is cold.","Let me heat it up in the microwave.","Thanks."],q:"What is cold?",a:"The coffee.",k:[["coffee"]]},
+{l:["Do you want to come to the café with me?","I can’t. I have to clean the house.","You can always do that later."],q:"Why can’t the woman go to the café?",a:"She has to clean the house.",k:[["clean"]]},
+{l:["Are you done reading this magazine?","No, but you can take it if you want.","Thanks, I’ll bring it back tomorrow."],q:"What did the woman borrow?",a:"The magazine.",k:[["magazine"]]},
+{l:["What should I bring to your house?","Could you bring some tomatoes for the salad?","Sure, how many do you need?"],q:"What will the woman bring?",a:"Tomatoes for the salad.",k:[["tomato"]]},
+{l:["I’m sorry, but I can’t check this book out to you.","But I have a library card and I come here all the time.","Yes, but you have several items that have not been returned."],q:"Why can’t the man check out the book?",a:"He has several items that have not been returned.",k:[["return","overdue"]]},
+{l:["They should be done painting the house on Friday.","I don’t believe that. There’s so much left to do.","I know, we’ll see."],q:"What should be done on Friday?",a:"Painting the house.",k:[["paint"]]},
+{l:["I’m going to change my flight reservation.","Why is that?","I need to leave a day later."],q:"What does the woman need to change?",a:"Her flight reservation.",k:[["flight","reservation","booking"]]},
+{l:["Can you believe that I finished cooking all the food already?","Wow. How did you do it so quickly?","I woke up at four in the morning."],q:"What did the woman finish?",a:"Cooking all the food.",k:[["cook","food"]]},
+{l:["Where’s the restroom?","There’s one by the escalator.","Is it open to the public?"],q:"What is located near the escalator?",a:"The restroom.",k:[["restroom","toilet","bathroom","washroom"]]},
+{l:["Is the bus the fastest way to get home?","Actually, I think walking might be faster. The bus is very slow.","You’re probably right."],q:"How will the woman get home?",a:"By walking.",k:[["walk","foot"]]},
+{l:["Can I get you something to drink?","A cup of coffee would be wonderful.","Okay, I’ll be right back."],q:"What does the man want to drink?",a:"A cup of coffee.",k:[["coffee"]]},
+{l:["Excuse me, can I have a glass of water?","Yes, just a minute.","Thank you."],q:"What does the man want?",a:"A glass of water.",k:[["water"]]},
+{l:["Are you from London?","No, but my family lives there.","It’s so much bigger than Sydney."],q:"Where does the woman’s family live?",a:"In London.",k:[["london"]]},
+{l:["How can you listen to music when you’re studying?","It helps me work better.","I need complete silence."],q:"What helps the man work better?",a:"Listening to music.",k:[["music"]]},
+{l:["I can’t find the salt anywhere.","It should be next to the honey on the second shelf.","Found it, thanks."],q:"What was the man looking for?",a:"The salt.",k:[["salt"]]},
+{l:["Let’s meet in front of the library on Friday.","Sounds good. What time?","At two o’clock."],q:"Where will they meet on Friday?",a:"In front of the library.",k:[["library"]]},
+{l:["How does someone go about getting a certificate?","They have to pass the test.","When can I sign up for the test?"],q:"What do people who pass the test get?",a:"A certificate.",k:[["certificate"]]},
+{l:["It’s quiet here today, isn’t it?","It is. The neighbors are out of town.","Oh, that explains it."],q:"Why is it quiet?",a:"The neighbors are out of town.",k:[["neighbo"]]},
+{l:["Do you like the color of this shirt?","I’m okay with that. Actually, it’s the fabric I’m not crazy about.","Yes, I see what you mean. Let’s look at some other ones."],q:"What does the man not like about the shirt?",a:"The fabric.",k:[["fabric","material","cloth"]]},
+{l:["Do you do any volunteer work?","I do. I help out at the library once a week.","That sounds great."],q:"Where does the man volunteer?",a:"At the library.",k:[["library"]]},
+{l:["I need to sign this form.","Do you want to borrow my pen?","Yes, that would be great."],q:"What does the woman need to borrow?",a:"A pen.",k:[["pen"]]},
+{l:["The new restaurant just got a great review in the paper.","I read it. They’re the only restaurant in town that grows their own vegetables.","We really should have dinner there sometime."],q:"What is special about the new restaurant?",a:"It grows its own vegetables.",k:[["vegetable"]]},
+{l:["How was your flight?","It was great. I even arrived ahead of schedule.","That doesn’t happen very often."],q:"Why was the flight so great?",a:"It arrived ahead of schedule.",k:[["ahead","early","schedule"]]}
+];
+
+const DICT = [
+"I have to agree with you.",
+"The company first opened when I was much younger.",
+"I don’t have any information.",
+"It’s a good idea to create a different version of your resume.",
+"You can use the computer in a minute.",
+"I’d love to go.",
+"Do you live here?",
+"Where are the pens we used to write on the board?",
+"Please note that the phone and the fax number will remain the same.",
+"The hotels are so nice here.",
+"I’ll see you on Thursday.",
+"Having a pet can reduce stress.",
+"I’ll be finished by Friday.",
+"Report any computer issues to technical support.",
+"Let’s put our heads together and come up with a solution.",
+"We need to make sure that our department is ready for inspection.",
+"He said he would like a cup of coffee.",
+"I turned down the offer because they needed someone who could travel.",
+"Today’s meeting will take place a little earlier than we thought.",
+"I knew something would go wrong with the plan.",
+"The plan will be drawn up tomorrow morning when everyone is together.",
+"Why do you think some of the plants didn’t grow?",
+"The proposal is finished.",
+"It’s raining at the moment.",
+"Please reply to this email if you’re attending the seminar.",
+"The train comes here every twenty minutes.",
+"I like to visit my parents on the weekends.",
+"It’s a good day for being outdoors.",
+"According to the weather forecast, it’s going to be really hot this weekend.",
+"I threw the magazine away yesterday.",
+"The document needs to be edited.",
+"I’ll be back in the middle of September.",
+"I wish we didn’t have to work that night.",
+"When is the game?",
+"They presented a plan to reduce the large debt.",
+"The company has grown too large over the years.",
+"I don’t like to eat breakfast.",
+"She knows several journalists who work for a large newspaper.",
+"I’m tired. Let’s take a break.",
+"The heating system was just repaired.",
+"Many companies operate in more than one country.",
+"The human resources department is doing everything it can.",
+"I eat there every night.",
+"Give me a call if you need help moving.",
+"Junk food at school should be banned.",
+"My neighbor has been practicing the piano for thirteen years.",
+"Everyone except him decided to go.",
+"Archaeology helps us understand history and culture.",
+"She had taken her father’s advice literally.",
+"Heat waves happen every year in India.",
+"This situation affected him greatly.",
+"My cousin wondered if she could have majored in French.",
+"The music has a great effect on everybody.",
+"My siblings always study diligently.",
+"Poland used to be a communist country.",
+"They often share a bottle of wine while reminiscing over family photo albums.",
+"This particular quote is indeed inspiring.",
+"There was a dearth of usable firewood at the campsite.",
+"Corruption is at its peak during election time.",
+"Their children didn’t stop whining.",
+"You’ll have to bear the consequences of your actions.",
+"Theme parks are a source of fun for people of all ages.",
+"I think about half of South America uses voting technology.",
+"I went to the University of Bristol where I studied chemistry.",
+"This is what we would call a state of equilibrium.",
+"Professor Smith will be late for today’s lecture.",
+"Three of the students were confused by the key hypothesis.",
+"The circulation desk is located on the ground floor.",
+"Patients diagnosed with heart failure will often report being depressed.",
+"There was little available evidence to contradict his viewpoint.",
+"We have to hand our assignments in tomorrow at the latest.",
+"The majority of students in this college are postgraduates.",
+"All first-year students should attend the introductory lecture today.",
+"Remember to take all your belongings when you leave the lab.",
+"You must submit your assignments by next Friday at the latest.",
+"The time of the math lecture has been changed to 10:30.",
+"Final year business students have to write a 5,000-word essay on market trends.",
+"Various tax incentives are available to you and your employees."
+];
+
+const PASS = [
+{t:"John – sales manager",p:"John is the sales manager of a small store. An angry customer called him to complain about a home security system that she had recently bought from his store. She told him that it did not work properly because the alarm went off when she was in the house. Initially she demanded a refund, but when John apologized, and offered to replace her system with a new one, she agreed.",m:"John is the sales manager at a small store. An upset customer called to complain about a home security system she had recently bought. She explained that it did not work properly because the alarm went off while she was at home. At first, she demanded a refund. However, after John apologized and offered to replace the system with a new one, she agreed."},
+{t:"Sam – delayed flight",p:"Sam was on a busy flight that had been delayed. The plane finally landed and arrived at the gate. Then all the passengers got up to get their luggage. The woman in front of Sam accidentally bumped him in the arm. Just as she was apologizing, her bag fell from the overhead compartment and hit him on the head. The woman felt awful. Sam decided he didn’t want to fly again anytime soon.",m:"Sam was on a busy flight that had been delayed. When the plane finally reached the gate, all the passengers stood up to get their luggage. The woman in front of Sam accidentally bumped his arm. As she was apologizing, her bag fell from the overhead compartment and hit him on the head. She felt terrible. Sam decided he did not want to fly again for a while."},
+{t:"Mary – best teacher award",p:"Mary won this year’s best teacher award at her university. She has been known for her creative and unique teaching style for many years. Her award included a trip to Paris for one week. Mary and her husband have never been to Paris and they are very excited about it.",m:"Mary won this year’s best teacher award at her university. She has been known for her creative and unique teaching style for many years. Her award included a week-long trip to Paris. Since neither Mary nor her husband has ever been to Paris, they are very excited about the trip."},
+{t:"Summer time-off policy",p:"Employees who wish to take time off during the summer should check with their managers in advance. Many people plan to be away from the office during the summer. As a company, we’d like to make sure all projects have enough people working on them before we approve requests for time off.",m:"Employees who want to take time off during the summer should check with their managers in advance. Many people plan to be away from the office in summer. Before approving time-off requests, the company wants to make sure all projects have enough people working on them."},
+{t:"Robert – missing wallet",p:"Robert went to a nice restaurant for dinner. When the waiter brought the bill, Robert reached for his wallet, but it wasn’t in his pocket. He remembered having his wallet when he came into the restaurant. The waiter looked around the floor near his table. He found the wallet under the table.",m:"Robert went to a nice restaurant for dinner. When the waiter brought the bill, Robert reached for his wallet, but it was not in his pocket. He remembered having it when he came into the restaurant. The waiter looked around the floor near his table and found the wallet under it."},
+{t:"James and Ann – forgotten passport",p:"James and Ann were driving to the airport. Ann asked James if he had remembered to take his passport. He realized that he had forgotten it. He had left it in his jacket pocket at home. They turned around to pick it up. They arrived at the airport just in time to catch their flight.",m:"James and Ann were driving to the airport when Ann asked James if he had remembered his passport. He realized he had forgotten it in his jacket pocket at home. They turned around to pick it up and arrived at the airport just in time to catch their flight."},
+{t:"Trade fair in Rome",p:"I was at the International Trade Fair in Rome last week, and it was very exciting. Rome is a beautiful city. There were people from all over the world at the fair. I met a sales manager whose company sells software and it sounded like there might be a business opportunity. I’ll definitely stay in touch with him as a business contact. I’m writing a report of the trip right now and I should be able to send it out by noon today.",m:"I attended the International Trade Fair in Rome last week, and it was very exciting. Rome is a beautiful city, and there were people from all over the world at the fair. I met a sales manager from a software company, and there might be a business opportunity. I will stay in touch with him as a business contact. I am writing a report on the trip now and should be able to send it out by noon today."},
+{t:"Productivity articles",p:"I received a couple of good articles about how to be productive every day at work. I think you will find them useful. These were forwarded by our New York branch. Click on the link below to view the articles. You might learn something new.",m:"I received a couple of good articles about how to be productive at work every day, and I think you will find them useful. They were forwarded by our New York branch. Click the link below to view the articles. You might learn something new."},
+{t:"Gym discount for employees",p:"Our gym is located across from your office and is currently offering a special discount to all employees working in your office. According to researchers, getting exercise regularly is a great way to stay positive and healthy. If you sign up for a membership this week, you can get a personal trainer to help you on your first five visits.",m:"Our gym, located across from your office, is currently offering a special discount to all employees in your office. Researchers say that regular exercise is a great way to stay positive and healthy. If you sign up for a membership this week, you will get a personal trainer to help you on your first five visits."},
+{t:"Hospital annual reminder",p:"This is our annual reminder to all employees. Our hospital is known in our community for excellent customer care. We have been providing friendly and quality services to all our patients and are committed to doing the same again this year. Greet your patients with a smile and hospitality.",m:"This is our annual reminder to all employees. Our hospital is known in the community for excellent customer care. We have always provided friendly, quality service to all our patients, and we are committed to doing the same this year. Please greet your patients with a smile and hospitality."},
+{t:"James – retirement",p:"After working for thirty years as a salesperson, James decided to retire. The first few weeks of his retired life were fine. He relaxed and spent a lot of time reading. After a month, he started to get bored. He decided to volunteer at the local animal rescue center. He loved working with the animals, and was glad to have a scheduled activity to do each day.",m:"After thirty years as a salesperson, James decided to retire. The first few weeks were fine; he relaxed and read a lot. After a month, however, he started to get bored, so he decided to volunteer at the local animal rescue center. He loved working with the animals and was glad to have a scheduled activity every day."},
+{t:"Certificate program",p:"Thank you for your interest in our certificate program. The program is specifically designed for people with a full-time job. All our classes are offered at night and on weekends. Not only can our program offer you the knowledge you need in your field, it will also give you the opportunity to meet with people working in the same industry as you are. Don’t hesitate to contact me if you have any questions.",m:"Thank you for your interest in our certificate program. It is designed for people with full-time jobs, so all classes are held at night and on weekends. The program gives you the knowledge you need in your field and also the chance to meet people working in the same industry. Please feel free to contact me if you have any questions."},
+{t:"Farewell message",p:"As I told you at our last meeting, I am moving on to a new position in another company next week. My last working day is Friday, January 25th. Thanks for being such a great team to work with. I will miss you all and hope you will stay in touch.",m:"As I mentioned at our last meeting, I am moving to a new position at another company next week. My last working day is Friday, January 25th. Thank you for being such a great team to work with. I will miss you all and hope we will stay in touch."},
+{t:"Anna – dry cleaning",p:"Anna picked up her suit from the dry cleaners. After she had paid, she noticed that the cleaners had not cleaned the suit properly. She politely brought this to their attention, and requested a refund. Although the cleaner apologized, he said that it was not his fault, and refused to give Anna a refund.",m:"Anna picked up her suit from the dry cleaners. After paying, she noticed that it had not been cleaned properly. She politely pointed this out and asked for a refund. The cleaner apologized but said it was not his fault and refused to give her a refund."},
+{t:"Dinner thank-you note",p:"Thanks so much for dinner last night. We had a really good time. We were especially glad to meet your little daughter. I hope you will be able to come to visit us someday soon. Let’s stay in touch.",m:"Thank you very much for dinner last night. We had a great time and were especially happy to meet your little daughter. I hope you can come and visit us soon. Let’s stay in touch."},
+{t:"John – new phone",p:"John bought a new phone and was looking forward to trying it out as soon as possible. The moment John got home, he tried to turn it on, but it didn’t work. He immediately drove back to the store. The salesperson was very nice and showed John how to insert the battery. John was pleased that the phone was working properly, but at the same time, he felt embarrassed because he should have read the instructions.",m:"John bought a new phone and was eager to try it. As soon as he got home, he tried to turn it on, but it did not work. He drove straight back to the store, where the salesperson kindly showed him how to insert the battery. John was pleased that the phone worked, but he felt embarrassed because he should have read the instructions."},
+{t:"Anna – surprise party",p:"Anna was organizing a birthday party for her coworker, Susan. Anna wanted it to be a surprise party, so she asked everyone in the office not to tell Susan about the party. Then, Anna asked the president of the company to send out an email inviting everyone to a company meeting. Susan walked into the conference room expecting a meeting, but instead, everyone shouted, “Happy Birthday!”",m:"Anna was organizing a surprise birthday party for her coworker, Susan, so she asked everyone in the office not to tell her. Then Anna asked the company president to send an email inviting everyone to a meeting. When Susan walked into the conference room expecting a meeting, everyone shouted, “Happy Birthday!”"},
+{t:"Pay rate clarification",p:"I am sorry about all the confusion regarding your pay rate. Unfortunately, our budget has been cut and so we have had to reduce the amount that we can offer. I hope this clears things up but do come back to me if you would like more information.",m:"I apologize for the confusion about your pay rate. Unfortunately, our budget has been cut, so we have had to reduce the amount we can offer. I hope this makes things clear, but please contact me if you would like more information."},
+{t:"Andrea – cookbook",p:"Andrea loves to cook. She wants to write a cookbook with all her favorite recipes. So, she makes dinner every night for her family. After dinner, she asks what they think of the food. Then, she decides if she wants to include the recipe in her cookbook or not.",m:"Andrea loves to cook and wants to write a cookbook with all her favorite recipes. She makes dinner for her family every night and asks them what they think of the food. Then she decides whether to include the recipe in her cookbook."},
+{t:"Office party",p:"Mark your calendar for the office party! This year, we are having a barbecue, Saturday night at 6 p.m. Dress is casual. Please sign up and tell us how many people you will be bringing. See you there!",m:"Mark your calendar for the office party! This year we are having a barbecue on Saturday night at 6 p.m. The dress code is casual. Please sign up and let us know how many people you will bring. See you there!"},
+{t:"James – apartment search",p:"James was moving to Chicago and needed an apartment. First, he searched the internet, but there were so many apartment listings that he didn’t know where to begin. Then he searched the local newspaper, but the listings did not provide him with enough information. Finally, he went to a real estate agent in Chicago, who found him a suitable apartment near his new job.",m:"James was moving to Chicago and needed an apartment. He first searched the internet, but there were so many listings that he did not know where to start. Then he tried the local newspaper, but the listings did not give enough information. Finally, he went to a real estate agent in Chicago, who found him a suitable apartment near his new job."},
+{t:"Derek – going-away party",p:"Derek wanted to throw a going-away party for his daughter. She was going away to college in a week. Derek decided to have an outdoor party in the garden behind his house. Unfortunately, it rained the day of the party. Even though everyone had to stay inside the house, they all had a wonderful time.",m:"Derek wanted to have a going-away party for his daughter, who was leaving for college in a week. He planned an outdoor party in the garden behind his house. Unfortunately, it rained on the day of the party. Although everyone had to stay inside, they all had a wonderful time."},
+{t:"Kevin – dentist appointment",p:"Kevin left home early to visit the dentist, so he decided to take the subway. He did not know that the subway was under maintenance. He ran back home to take his bicycle. Eventually, he made it on time for the appointment.",m:"Kevin left home early to visit the dentist and decided to take the subway. He did not know that the subway was under maintenance, so he ran back home to get his bicycle. In the end, he arrived on time for his appointment."},
+{t:"Cindy and Claire – theatre tickets",p:"Cindy and Claire bought tickets for a play that is going to be held next weekend. But Claire’s brother fell from his bike and broke his arm. He was admitted to the hospital. To cheer him up, Claire gave him her ticket, so that Cindy and Claire’s brother would go to the play together.",m:"Cindy and Claire bought tickets for a play next weekend. However, Claire’s brother fell off his bike, broke his arm and was admitted to the hospital. To cheer him up, Claire gave him her ticket so that he and Cindy could go to the play together."},
+{t:"Sophia – new cafeteria",p:"Sophia sent an email to all the employees about the new cafeteria, which will be opened on Monday of the following week. To get suggestions from employees, she sent the email. One of the employees suggested including more vegetarian options in the menu. She thought it was a good idea and planned to implement it.",m:"Sophia sent an email to all employees about the new cafeteria, which will open next Monday, to ask for their suggestions. One employee suggested adding more vegetarian options to the menu. Sophia thought it was a good idea and planned to do it."},
+{t:"Maria – passport at the airport",p:"Maria and her brother went to the airport. When she was asked for her passport, Maria reached for her purse, but it was not there. She remembered having her passport when she came into the airport. Her brother looked around and found the passport under his bag.",m:"Maria and her brother went to the airport. When she was asked for her passport, Maria reached into her purse, but it was not there. She remembered having it when she came into the airport. Her brother looked around and found the passport under his bag."},
+{t:"Laura – plants",p:"Laura and her husband bought two tickets to go on a trip to Trinidad and Tobago. She asked her father-in-law to water the plants while they were away. Her father-in-law forgot to water the plants because he had too much work. When Laura and her husband came back from the trip, they found all the plants in a bad condition.",m:"Laura and her husband bought tickets for a trip to Trinidad and Tobago. She asked her father-in-law to water the plants while they were away, but he forgot because he had too much work. When they came back, they found all the plants in bad condition."},
+{t:"John – pizza job",p:"John heard that the pizza place near his flat was hiring new bike couriers. He loves to bike, and he also loves pizza, so he decided to apply for the job. When he went to the restaurant for a job interview, he got very nervous and hesitated a lot during the interview. Fortunately, the restaurant manager decided to hire him thanks to his great biking skill.",m:"John heard that the pizza place near his flat was hiring bike couriers. Since he loves biking and pizza, he applied for the job. During the interview he was very nervous and hesitated a lot. Fortunately, the manager hired him because of his great biking skills."},
+{t:"David – business school",p:"David worked for a bank for three years. He enjoyed his job, but he wanted to have more career options. He decided to go to business school. After getting his degree he became a manager at the same bank.",m:"David worked at a bank for three years. He enjoyed his job but wanted more career options, so he decided to go to business school. After getting his degree, he became a manager at the same bank."},
+{t:"Amy Jones – staff meeting memo",p:"My name is Amy Jones, and I am the new marketing manager. This memo is just to let you know that I will be holding a staff meeting Friday at 9:00 am so that I can introduce myself properly. I look forward to meeting you then.",m:"My name is Amy Jones, and I am the new marketing manager. I am writing to let you know that I will hold a staff meeting on Friday at 9:00 am so that I can introduce myself properly. I look forward to meeting you then."},
+{t:"Music box factory",p:"A man worked in a factory that produced music boxes. On Saturdays, he would take his little girl to the factory. All the people who worked on the assembly line would talk to the little girl and she loved the attention. At the end of the day, they would always give her a small music box.",m:"A man worked in a factory that made music boxes. On Saturdays, he took his little girl to the factory. The workers on the assembly line talked to her, and she loved the attention. At the end of the day, they always gave her a small music box."},
+{t:"David – exam and broken alarm",p:"David had an exam the next day, so he stayed up late studying. In the morning, his alarm went off, but David knocked the alarm to the floor and it broke. Then, David fell asleep again. When he woke up, he had slept well, but he had missed the exam.",m:"David stayed up late studying because he had an exam the next day. In the morning, when his alarm went off, he knocked it to the floor and it broke. Then he fell asleep again. When he woke up, he felt well rested, but he had missed the exam."},
+{t:"Paul – alarm and late arrival",p:"Paul wakes up early every day so that he can be at work on time. He sets his alarm for the same time every morning. One day Paul’s alarm didn’t go off and he didn’t wake up until noon. He arrived to work very late and missed a meeting.",m:"Paul wakes up early every day so he can get to work on time, and he sets his alarm for the same time every morning. One day his alarm did not go off, and he did not wake up until noon. He arrived at work very late and missed a meeting."},
+{t:"Kate – volunteering at a school",p:"Kate volunteers at a school. She helps teachers by reading to students and helping them with their homework. She enjoys her time at the school so much that she has decided to become a teacher. All of the teachers that she works with have told her that it would be a wonderful job for her.",m:"Kate volunteers at a school, where she helps teachers by reading to students and helping them with their homework. She enjoys it so much that she has decided to become a teacher. All the teachers she works with have told her it would be a wonderful job for her."},
+{t:"George – film editor",p:"George works in the film industry in Los Angeles. He once thought he would be able to meet famous actors and producers every day. But his job is to edit films, so he is always inside the editing room. He never gets to see the actors in person.",m:"George works in the film industry in Los Angeles. He once thought he would meet famous actors and producers every day. However, his job is editing films, so he is always in the editing room and never sees the actors in person."},
+{t:"Corey – taxi driver",p:"Corey is a taxi driver. It is his dream job because he loves driving cars. He started the job ten years ago and has been saving up money since then. Soon, he will use this money to start his own taxi company.",m:"Corey is a taxi driver, which is his dream job because he loves driving. He started ten years ago and has been saving money since then. Soon he will use this money to start his own taxi company."},
+{t:"Shipment delay apology",p:"Thank you so much for being so understanding about our delay of shipment. It has been quite difficult to get materials from our suppliers due to the recent weather conditions. It is an unusual circumstance. In any case, we should be able to ship the products to you tomorrow. In the meantime, if you have any questions, please feel free to contact me.",m:"Thank you for being so understanding about the delay in our shipment. Because of the recent weather, it has been difficult to get materials from our suppliers, which is unusual. However, we should be able to ship the products to you tomorrow. In the meantime, please feel free to contact me if you have any questions."}
+];
+
+const Q = [
+["She was awarded a promotion based on her excellent ___ on the job.",["performance"]],
+["It was so ___ outside that no one wanted to leave the air-conditioned house.",["hot","warm"]],
+["You may not ___ with his methods, but there’s no question that he makes a lot of money for the company.",["agree"]],
+["I’m not sure I can come tomorrow. I’ll have to ___ my schedule.",["check","change"]],
+["Some people wear ___ to help them see better.",["glasses","spectacles","eyeglasses"]],
+["The elevator is broken, so you will have to take the ___ to get to the second floor.",["stairs","steps","staircase"]],
+["Where is my jacket? I can’t ___ it.",["find"]],
+["The money was distributed ___ several people.",["among","amongst"]],
+["For ___ about the product, please consult the instruction manual.",["details","more information","information","more details"]],
+["I have trouble ___ at night, so I usually wake up very tired.",["sleeping"]],
+["Over three hundred people ___ the store’s grand opening.",["attended","witnessed"]],
+["I wanted to buy the book, but the bookstore didn’t have any in ___. They expect to receive more next week.",["stock"]],
+["The class had to be ___ indefinitely because of the summer schedule.",["postponed","cancelled","canceled","stopped","suspended"]],
+["You can place your order as soon as you know what you want to ___.",["purchase","buy","order"]],
+["Thank you very much for your help on such short notice. It helped us immensely when time was ___.",["running out","short"]],
+["The training program ___ a wide selection of courses to any interested employee at a minimum charge.",["offers","has","provides"]],
+["Can I bring you something to drink? Perhaps tea or ___?",["coffee","juice","water"]],
+["My house is very small. There’s just my mother, father, and ___.",["me"]],
+["The city can be divided into two parts. The outer sections are ___ new, while the historical city center is rather old.",["relatively","fairly","mostly","quite"]],
+["When travelling in a foreign country, you should always carry your passport or some form of ___.",["identification","id","identity","identification card","id card","identity card"]],
+["The speaker at the conference was very interesting. I ___ his talk very much.",["enjoyed","liked"]],
+["I was recently ___ from the Berlin office to the Tokyo office.",["transferred","moved","relocated"]],
+["Don’t forget to ___ for a receipt when you pay.",["ask"]],
+["Since you’ve finished everything else, for the ___ of the week please focus your attention on finishing the expense reports.",["rest","remainder"]],
+["I don’t ___ what I wrote. I am going to rewrite it completely.",["remember","know","understand","like"]],
+["The residents were advised to ___ their homes before the storm reached them.",["evacuate","leave","vacate"]],
+["Recent studies have shown that the shopping ___ of consumers have changed dramatically in the past ten years.",["habits","patterns","trends"]],
+["Although sales were down last quarter, the owner had high ___ that business would improve soon.",["expectations","hopes"]],
+["I know you love travelling abroad. Would you be ___ in a position in our overseas office?",["interested"]],
+["I couldn’t believe it when he agreed to make an ___ on the show tonight.",["appearance"]],
+["You’re driving too ___. You should slow down.",["fast","quickly"]],
+["I haven’t eaten anything all day. I’m so ___!",["hungry","starving"]],
+["I need to write your first name. How do you ___ it?",["spell"]],
+["The man ___ his car keys and spent an hour looking for them this morning.",["misplaced","lost"]],
+["My flight departed ten minutes later than scheduled but arrived on ___ at the destination.",["time"]],
+["She was a junior manager but now she has been ___ to a senior management position.",["promoted"]],
+["The amount of air pollution in this town has increased substantially ___ the factory opened.",["since"]],
+["The number of attendees far exceeded our expectation. The event site was very ___; it was not even easy to walk around.",["crowded","packed","congested"]],
+["It ___ to be seen whether the company will stay in business next year.",["remains","has"]],
+["A good policy is to always ___ to customer requests within 24 hours. Otherwise, they tend to become annoyed and may find other providers.",["respond","reply"]],
+["The department is responsible for the mistake so they will have to ___ the cost of the failure themselves.",["bear","pay","cover"]],
+["We offer our customers the ___ of placing orders by phone or online.",["choice","service","convenience","option"]],
+["I’m sorry I’m late. I ___ up late this morning.",["woke","got"]],
+["How much does the necklace ___? I don’t see a price.",["cost"]],
+["The bill wasn’t right. I think they made a ___.",["mistake","error"]],
+["To ___ our first major success, we’re going to throw a party.",["celebrate"]],
+["Before you drive over the bridge you have to pay the ___ at the booth.",["toll","tax","fee"]],
+["The company ___ its target last year and reported a profit.",["hit","exceeded","achieved","met","reached"]],
+["Please check all envelopes for the correct return ___.",["address"]],
+["My ears are ringing because the music was so loud at the ___.",["concert","party"]],
+["I had to take out a ___ from the bank to cover the cost of replacing the roof of my house.",["loan"]],
+["Should I turn right or ___ at the next corner?",["left"]],
+["I’m a salesman. And you, what do you ___?",["do"]],
+["What time is it? I don’t have a ___.",["watch","clock"]],
+["Can you turn the lights ___? I can’t see anything.",["on"]],
+["When it rains, there are dark ___ in the sky.",["clouds"]],
+["After making one last ___ to the layout, the newsletter was ready to be sent out.",["modification","change","adjustment","edit"]],
+["Finally, everything I had to do is finished now that the project has reached ___.",["completion","the end","its end","an end","end"]],
+["I went shopping yesterday and spent all my ___.",["money","savings","cash"]],
+["An increasing ___ of businesses have recently shut down due to the economic downturn.",["number"]],
+["The product is out of stock until the next ___ arrives.",["shipment","delivery","consignment","batch"]],
+["The employees of our factory must follow a strict set of safety ___.",["protocols","guidelines","rules","regulations","procedures"]],
+["She gets her supplies at a ___ rate because she buys in bulk.",["discounted","subsidized","subsidised","low","lower","reduced"]],
+["My friend, who has lived in New York all his life, took me on a personal ___ of the city.",["tour"]],
+["I don’t have my credit card. I must have ___ it at home.",["left","kept","forgotten"]],
+["Let’s ___ tomorrow’s presentation until next week. I’m just too busy to prepare for it right now.",["postpone","delay","defer"]],
+["This is cutting ___ technology. It’s the best on the market.",["edge"]],
+["Today is Tuesday. Yesterday was ___.",["monday"]],
+["If you want to meet with the CEO, you need to make an appointment weeks in ___.",["advance"]],
+["He’s running ___; he should have been here half an hour ago.",["late"]],
+["She was temporarily ___ by the brightness of the sun.",["blinded","dazzled"]],
+["In my company, it is the manager’s job to divide work ___ the team members.",["among","amongst","between"]],
+["Negotiations came to a halt as leaders struggled to reach terms that were ___ to both parties.",["acceptable","agreeable"]],
+["When my bicycle got a flat ___, I had to take the train to work.",["tyre","tire"]],
+["It looks like this document has been edited already – is this the final ___?",["draft","copy","version"]],
+["We had planned to go hiking today, but the weather was so bad that we had to come up with an ___ plan.",["alternate","alternative"]],
+["There was a clear blue sky and the sun was ___.",["shining brightly","shining","bright","beaming"]],
+["In cities with good public ___, it’s hard to understand why people insist on driving themselves to work.",["transport","transportation"]],
+["Workers who have previously completed training are ___ from the new training requirement.",["exempt","exempted"]],
+["I ___ my clothes off at the dry cleaner on my way to work this morning.",["dropped"]],
+["He’s so concerned for the environment that I wasn’t surprised when he told me the soles of his shoes were made out of ___ old tires.",["recycled","worn","his"]],
+["Please make sure that all seatbelts are securely ___.",["fastened"]],
+["Ken works from home a lot. He doesn’t come into the office very ___ at all.",["often","frequently"]],
+["I need to ___ my hotel reservation. I won’t be staying there anymore.",["cancel"]],
+["I find it hard to ___ on my work with that music playing.",["concentrate","focus"]],
+["I usually finish work around 7pm but sometimes I manage to go ___.",["earlier","early","home early","home earlier"]],
+["When contacting customer support, please have your order number ___ for reference.",["ready","handy","available"]],
+["The store had only been in business for two months when the ___ sold it.",["owner","owners"]],
+["If you don’t ___ the height requirement, you are not allowed to get on the ride.",["meet","fulfill","fulfil","satisfy"]],
+["Keep all your valuables in the ___ in the hotel room.",["safe","locker"]],
+["I can’t ___ what it must be like having to do a task like this all day.",["imagine"]],
+["She ran to the corner, but she just ___ the bus, so she had to wait for the next one.",["missed"]],
+["All of the city council members, with the ___ of one, voted against the new law.",["exception"]],
+["The library ___ the event by posting flyers throughout the city.",["advertised","promoted","publicized","publicised"]],
+["You need a parking ___ if you want to leave your car here.",["permit","ticket","pass"]],
+["City buildings can only be so tall. The exact height will ___ on local regulations.",["depend"]],
+["The baker had several ___ on his hands from the time he touched the oven.",["burns","blisters"]],
+["My sister is ___ well after her surgery.",["doing","recovering"]],
+["Because the company did not accept applications by mail, he had to ___ his application using the company’s website.",["submit","send"]],
+["I love pets. I’m a member of an ___ protection rights group and do volunteer work once a month.",["animal"]],
+["He is quite a handy man. He ___ broken items and brings them back to the shop.",["fixes","repairs"]],
+["The police have been ___ the activity at that house for two months.",["monitoring","observing","watching","investigating"]],
+["There was a fire and the ___ left a black mark on the roof.",["smoke"]],
+["The broadcasting company is funded by the government. However, everybody who owns a television pays an annual license ___.",["fee","premium"]],
+["Give my regards ___ Anna and the kids.",["to"]],
+["We had made a ___ to go to Peru for our vacation, but we changed our minds at the last minute.",["plan","decision"]],
+["The new trainees are ___ along just fine.",["getting","doing","working","coming","going"]],
+["All the ___ down behind my desk are tangled up.",["wires","cables"]],
+["His appearance has changed ___ much that it was difficult to even recognize him.",["so"]],
+["You can make several ___ of this document.",["copies"]],
+["Even if you run fast, you probably won’t be able to catch the train – it’s too ___.",["late"]],
+["I ___ to agree with you.",["have"]],
+["The show was ___ by a crowd of almost 20,000 fans.",["attended","watched"]],
+["He is ___ in charge of the employees’ orientation.",["the person","the one"]],
+["My job is exciting but it ___ a lot of time.",["demands","requires","takes"]],
+["Do you have this shirt in a larger ___? This one is too small.",["size"]],
+["A recent survey found that gadgets like phones and other small electronic ___ are very popular among online shoppers.",["devices","gadgets","items"]],
+["She has been known for her ___ and unique teaching style for many years.",["creative"]],
+["My sister is recovering from the surgery very well. The doctor told us that she would be able to go ___ next week.",["home"]],
+["How many languages can you ___?",["speak"]],
+["It is so bright and clear today. There isn’t a ___ in the sky.",["cloud"]],
+["I highly ___ her for the job because she is intelligent and attentive.",["recommend"]],
+["To ___ Dan’s birthday, his friends are going to have a party.",["celebrate"]],
+["She was ___ from the New York branch to the Los Angeles branch.",["transferred","moved","relocated"]],
+["Is this dress available in a smaller ___? This one is too big.",["size"]],
+["He arrived at the airport late, and ___ his flight, so he had to travel the next day.",["missed"]],
+["To avoid the danger from high wind, everyone was told to leave town ___ the hurricane arrived.",["before"]],
+["I went on a ___ of London on a double-decker bus to go sightseeing.",["tour"]],
+["Because of the sale, the store didn’t have any more televisions in ___, but they will get another delivery tomorrow.",["stock"]],
+["To get the new product, you can ___ your order online or over the telephone.",["place","make","submit"]],
+["I’m sorry to inform you of this at such short ___, but everyone is going to need to work late tonight.",["notice"]],
+["Their wedding photographer was an ___, not a professional; all of their photographs turned out badly.",["amateur"]],
+["There has been peace ___ the two nations since they signed the international treaty.",["between"]],
+["We thought she would be ___ about going abroad, but she seemed completely bored.",["excited","thrilled","enthusiastic"]],
+["The company was having cash flow problems and had to take a ___ from the bank.",["loan"]],
+["He is suffering ___ a strange illness and has been in the hospital for three weeks.",["from"]],
+["The woman ___ her eyeglasses and had to buy a new pair.",["lost","broke"]],
+["For more ___ about the job, please see the advertisement.",["information","details"]],
+["The return ___ needs to be provided on the letter.",["address"]],
+["We need to touch ___. So give me a call tomorrow.",["base"]],
+["Even though she failed her last driving test, she had high ___ that she would pass this time.",["hopes","expectations"]],
+["They ___ a mistake in how they spelled my name.",["made"]],
+["The company caused the pollution, so they need to ___ the cost of the cleanup themselves.",["cover","pay","bear"]],
+["Employees will lose pay accordingly if they are ___ to work.",["late"]]
+];
+const FIB = Q;
+const SECS = [
+ {id:"repeat",name:"Repeat",skill:"Speaking",items:REPEAT,
+  tip:"Press Play, keep the text hidden, and say the sentence back exactly as you heard it. In the test you hear each sentence only once, so try not to replay it. Then check yourself with the microphone, or reveal the sentence and mark how you did."},
+ {id:"builds",name:"Sentence Builds",skill:"Speaking",items:BUILDS,
+  tip:"You hear three short phrases in a mixed order. Say the full sentence aloud first, then tap the phrases in the right order to check it."},
+ {id:"conv",name:"Conversations",skill:"Listening",items:CONV,
+  tip:"Listen to a short conversation and the question at the end. Answer in a few words; a full sentence is not needed. Keep the text hidden until you have answered."},
+ {id:"fib",name:"Sentence Completion",skill:"Writing",items:FIB,
+  tip:"Type one word that fits the blank. Read the words on both sides of the blank for grammar clues. Press Enter to check, and Enter again to move on."},
+ {id:"dict",name:"Dictation",skill:"Listening and writing",items:DICT,
+  tip:"Listen and type exactly what you hear, including small words like “the” and “to”. Spelling counts. Missed words are underlined in red after you check."},
+ {id:"pass",name:"Passage Reconstruction",skill:"Reading and writing",items:PASS,
+  tip:"Read the passage for 30 seconds. It then disappears and you rewrite it from memory in about 90 seconds. Keep the main events and their order; your own wording is fine."}
+];
+
+/* ---------- storage ---------- */
+const KEY="versant-practice-all-v1";
+let ST={}; try{ST=JSON.parse(localStorage.getItem(KEY)||"{}")||{}}catch(e){ST={}}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(ST))}catch(e){}};
+function S(sec){ let s=ST[sec.id]; if(!s||!s.order||s.order.length!==sec.items.length){ s=ST[sec.id]={order:sec.items.map((_,i)=>i),pos:0,res:{},ans:{},wrongOnly:false}; } return s; }
+
+/* ---------- text helpers ---------- */
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const UK={favourite:"favorite",neighbour:"neighbor",neighbours:"neighbors",centre:"center",cancelled:"canceled",travelling:"traveling",organised:"organized",colour:"color",tyre:"tire",programme:"program",practising:"practicing",analyse:"analyze",dialled:"dialed"};
+const words=s=>String(s).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[’‘`]/g,"'").replace(/[^a-z0-9' ]+/g," ").split(/\s+/).map(w=>w.replace(/^'+|'+$/g,"")).filter(Boolean).map(w=>UK[w]||w);
+const same=(a,b)=>words(a).join(" ")===words(b).join(" ");
+function diff(exp,got){
+  const n=exp.length,m=got.length,dp=Array.from({length:n+1},()=>new Array(m+1).fill(0));
+  for(let i=n-1;i>=0;i--)for(let j=m-1;j>=0;j--)dp[i][j]=exp[i]===got[j]?dp[i+1][j+1]+1:Math.max(dp[i+1][j],dp[i][j+1]);
+  const out=[];let i=0,j=0;
+  while(i<n&&j<m){ if(exp[i]===got[j]){out.push(["same",exp[i]]);i++;j++;} else if(dp[i+1][j]>=dp[i][j+1]){out.push(["miss",exp[i]]);i++;} else {out.push(["extra",got[j]]);j++;} }
+  while(i<n)out.push(["miss",exp[i++]]); while(j<m)out.push(["extra",got[j++]]);
+  return out;
+}
+const diffHTML=d=>d.map(([k,w])=>`<span class="w ${k}">${esc(w)}</span>`).join(" ");
+const LEGEND=`<div class="legend">Underlined in red: words you missed or got wrong. Struck through: words that should not be there.</div>`;
+
+/* ---------- speech ---------- */
+const hasTTS="speechSynthesis" in window;
+let voices=[];
+const voiceSel=document.getElementById("voice"), rateSel=document.getElementById("rate");
+const VKEY="versant-voice", RKEY="versant-rate";
+try{ const r=localStorage.getItem(RKEY); if(r) rateSel.value=r; }catch(e){}
+rateSel.onchange=()=>{ try{localStorage.setItem(RKEY,rateSel.value)}catch(e){} };
+function vscore(v){ const n=v.name; let s=0;
+  if(/natural|neural|online/i.test(n))s+=50; if(/google/i.test(n))s+=30; if(/premium|enhanced/i.test(n))s+=25;
+  if(/aria|jenny|guy|ava|andrew|emma|brian|samantha|allison|daniel|serena|libby|sonia|neerja/i.test(n))s+=10;
+  if(/en[-_]US/i.test(v.lang))s+=5; else if(/en[-_](GB|IN|AU)/i.test(v.lang))s+=3;
+  if(/compact|espeak|zira|david|hazel|novelty|bad news|bells|bubbles|cellos|jester|organ|trinoids|whisper|zarvox|albert|fred|junior|ralph|kathy|bahh|boing|wobble|superstar|grandpa|grandma|eddy|flo|reed|rocko|sandy|shelley/i.test(n))s-=40;
+  return s; }
+function loadVoices(){
+  if(!hasTTS)return;
+  voices=speechSynthesis.getVoices().filter(v=>/^en/i.test(v.lang)).sort((a,b)=>vscore(b)-vscore(a));
+  let saved=null; try{saved=localStorage.getItem(VKEY)}catch(e){}
+  voiceSel.innerHTML=voices.length?voices.map((v,i)=>`<option value="${i}">${esc(v.name)} (${esc(v.lang)})</option>`).join(""):'<option value="0">Default voice</option>';
+  const si=voices.findIndex(v=>v.name===saved); voiceSel.value=String(si>=0?si:0);
+}
+if(hasTTS){ loadVoices(); speechSynthesis.onvoiceschanged=loadVoices; } else { document.getElementById("voiceWrap").style.display="none"; document.getElementById("testVoice").style.display="none"; }
+voiceSel.onchange=()=>{ const v=voices[+voiceSel.value]; try{ v&&localStorage.setItem(VKEY,v.name) }catch(e){} speak([{t:"This is how the questions will sound."}]); };
+document.getElementById("testVoice").onclick=()=>speak([{t:"Please put that letter back on my desk."}]);
+function voiceFor(n){ if(!voices.length)return null; const main=voices[+voiceSel.value||0]; if(!n)return main; const alt=voices.find(v=>v.name!==main.name&&vscore(v)>=vscore(main)-20); return alt||main; }
+let speakTimer=null;
+function speak(parts){
+  if(!hasTTS)return false;
+  speechSynthesis.cancel(); clearTimeout(speakTimer);
+  let k=0;
+  const next=()=>{ if(k>=parts.length)return; const p=parts[k++]; const u=new SpeechSynthesisUtterance(p.t); const v=voiceFor(p.v||0); if(v){u.voice=v;u.lang=v.lang}else u.lang="en-US"; u.rate=parseFloat(rateSel.value); u.pitch=1; u.volume=1; u.onend=()=>{ speakTimer=setTimeout(next,p.gap||700) }; speechSynthesis.speak(u); };
+  speakTimer=setTimeout(next,80);
+  return true;
+}
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+const NOAUDIO=`<p class="hint">Your browser can’t play audio here, so the text is shown instead. Read it once, cover it, and answer from memory.</p>`;
+
+/* ---------- section renderers ---------- */
+const R={};
+
+R.repeat=(i,el,api)=>{
+  const txt=REPEAT[i];
+  el.innerHTML=`${hasTTS?"":NOAUDIO}
+  <div class="btns"><button class="primary" data-k="play">Play sentence</button>${SR?'<button data-k="rec">Speak and check</button>':""}<button data-k="show">Show sentence</button></div>
+  <p class="serif ${hasTTS&&!api.res?"hidden":""}" data-k="txt">${esc(txt)}</p>
+  <div class="out" data-k="out"></div>
+  <div class="btns" style="margin-top:12px"><span class="hint" style="margin:0">Mark yourself:</span><button data-k="ok">I said it correctly</button><button data-k="bad">I missed some words</button></div>`;
+  const q=k=>el.querySelector(`[data-k="${k}"]`);
+  q("play").onclick=()=>speak([{t:txt}]);
+  q("show").onclick=()=>q("txt").classList.remove("hidden");
+  q("ok").onclick=()=>{q("txt").classList.remove("hidden");api.mark("ok")};
+  q("bad").onclick=()=>{q("txt").classList.remove("hidden");api.mark("bad")};
+  if(SR) q("rec").onclick=()=>{
+    let r; try{ r=new SR(); }catch(e){ q("out").innerHTML=`<div class="fb bad">The microphone can’t start here. Say the sentence aloud, then use Show sentence and mark yourself.</div>`; return; }
+    r.lang="en-US"; r.interimResults=false; r.maxAlternatives=1;
+    q("out").innerHTML=`<p class="hint">Listening… say the sentence now.</p>`;
+    r.onresult=e=>{
+      const said=e.results[0][0].transcript, d=diff(words(txt),words(said));
+      const hit=d.filter(x=>x[0]==="same").length, acc=hit/words(txt).length;
+      q("txt").classList.remove("hidden");
+      const ok=acc>=0.9;
+      q("out").innerHTML=`<div class="fb ${ok?"ok":"bad"}">${ok?"Well repeated":"Some words were missed"} (${Math.round(acc*100)}% of words matched)<span class="ans">You said: ${esc(said)}</span></div><p class="serif">${diffHTML(d)}</p>${LEGEND}`;
+      api.mark(ok?"ok":"bad");
+    };
+    r.onerror=e=>{ q("out").innerHTML=`<div class="fb bad">The microphone isn’t available (${esc(e.error)}). Say the sentence aloud, then use Show sentence and mark yourself.</div>`; };
+    try{ r.start(); }catch(e){ r.onerror({error:"blocked"}); }
+  };
+};
+
+R.builds=(i,el,api)=>{
+  const [chunks,answers]=BUILDS[i];
+  let picked=Array.isArray(api.ans)?api.ans.slice():[];
+  el.innerHTML=`${hasTTS?"":NOAUDIO}
+  <div class="btns"><button class="primary" data-k="play">Play phrases</button></div>
+  <div class="line" data-k="line" aria-label="Your sentence"></div>
+  <div class="pool" data-k="pool"></div>
+  <div class="btns" style="margin-top:14px"><button class="primary" data-k="check">Check</button><button data-k="clear">Clear</button><button data-k="show">Show answer</button></div>
+  <div data-k="out"></div>`;
+  const q=k=>el.querySelector(`[data-k="${k}"]`);
+  q("play").onclick=()=>speak(chunks.map(t=>({t})));
+  function draw(){
+    q("line").innerHTML=""; q("pool").innerHTML="";
+    picked.forEach((c,pi)=>{ const b=document.createElement("button"); b.className="tile"; b.textContent=chunks[c]; b.onclick=()=>{picked.splice(pi,1);draw()}; q("line").append(b); });
+    chunks.forEach((t,c)=>{ if(picked.includes(c))return; const b=document.createElement("button"); b.className="tile"; b.textContent=t; b.onclick=()=>{picked.push(c);draw()}; q("pool").append(b); });
+    q("check").disabled=picked.length!==chunks.length;
+  }
+  draw();
+  const show=(ok)=>{ q("out").innerHTML=`<div class="fb ${ok?"ok":"bad"}">${ok?"Correct":"Not quite"}<span class="ans">${esc(answers[0])}${answers.length>1?" (also correct: "+answers.slice(1).map(esc).join(" / ")+")":""}</span></div>`; };
+  q("check").onclick=()=>{ const ok=answers.some(a=>same(a,picked.map(c=>chunks[c]).join(" "))); api.mark(ok?"ok":"bad",picked); show(ok); };
+  q("clear").onclick=()=>{picked=[];draw();q("out").innerHTML=""};
+  q("show").onclick=()=>{ q("out").innerHTML=`<div class="fb bad">Answer<span class="ans">${esc(answers.join(" / "))}</span></div>`; if(!api.res)api.mark("bad",picked); };
+  if(api.res) show(api.res==="ok");
+};
+
+R.conv=(i,el,api)=>{
+  const c=CONV[i];
+  el.innerHTML=`${hasTTS?"":NOAUDIO}
+  <div class="btns"><button class="primary" data-k="play">Play conversation</button><button data-k="show">Show text</button></div>
+  <div class="conv serif ${hasTTS&&!api.res?"hidden":""}" data-k="txt">${c.l.map((t,n)=>`<p><span class="who">Speaker ${n%2?"2":"1"}</span>${esc(t)}</p>`).join("")}<p><span class="who">Question</span>${esc(c.q)}</p></div>
+  <input class="textin" data-k="in" type="text" autocomplete="off" placeholder="Type a short answer" value="${esc(api.ans||"")}">
+  <div class="btns" style="margin-top:10px"><button class="primary" data-k="check">Check</button></div>
+  <div data-k="out"></div>`;
+  const q=k=>el.querySelector(`[data-k="${k}"]`);
+  q("play").onclick=()=>speak([...c.l.map((t,n)=>({t,v:n%2})),{t:c.q,v:0}]);
+  q("show").onclick=()=>q("txt").classList.remove("hidden");
+  const show=ok=>{ q("txt").classList.remove("hidden"); q("out").innerHTML=`<div class="fb ${ok?"ok":"bad"}">${ok?"Correct":"Not quite"}<span class="ans">Answer: ${esc(c.a)}</span></div>`; };
+  const check=()=>{ const w=words(q("in").value); if(!w.length)return; const ok=c.k.every(g=>g.some(k=>w.some(x=>x.startsWith(k)))); api.mark(ok?"ok":"bad",q("in").value); show(ok); };
+  q("check").onclick=check;
+  q("in").onkeydown=e=>{ if(e.key==="Enter"){ e.preventDefault(); if(q("out").innerHTML) api.next(); else check(); } };
+  if(api.res) show(api.res==="ok");
+};
+
+R.fib=(i,el,api)=>{
+  const [s,acc]=FIB[i], parts=s.split("___");
+  el.innerHTML=`<p class="serif">${esc(parts[0])}<input class="blank" data-k="in" type="text" autocomplete="off" spellcheck="false" autocapitalize="off" aria-label="Your answer" value="${esc(api.ans||"")}">${esc(parts[1]||"")}</p>
+  <div class="btns"><button class="primary" data-k="check">Check</button><button data-k="show">Show answer</button></div><div data-k="out"></div>`;
+  const q=k=>el.querySelector(`[data-k="${k}"]`);
+  const show=ok=>{ const v=q("in").value; q("out").innerHTML=`<div class="fb ${ok?"ok":"bad"}">${ok?"Correct":"Not quite"}<span class="ans">${ok&&acc.length>1?"Also accepted: "+esc(acc.filter(a=>!same(a,v)).join(", ")):"Answer: "+esc(acc.join(" / "))}</span></div>`; };
+  const check=()=>{ const v=q("in").value; if(!words(v).length)return; const ok=acc.some(a=>same(a,v)); api.mark(ok?"ok":"bad",v); show(ok); };
+  q("check").onclick=check;
+  q("show").onclick=()=>{ q("out").innerHTML=`<div class="fb bad">Answer<span class="ans">${esc(acc.join(" / "))}</span></div>`; if(!api.res)api.mark("bad",q("in").value); };
+  q("in").onkeydown=e=>{ if(e.key==="Enter"){ e.preventDefault(); if(q("out").innerHTML) api.next(); else check(); } };
+  if(api.res) show(api.res==="ok");
+};
+
+R.dict=(i,el,api)=>{
+  const txt=DICT[i];
+  el.innerHTML=`${hasTTS?`<div class="btns"><button class="primary" data-k="play">Play sentence</button></div>`:NOAUDIO+`<p class="serif" data-k="pre">${esc(txt)}</p><button data-k="hide">I’ve read it – hide the text</button>`}
+  <input class="textin" data-k="in" type="text" autocomplete="off" spellcheck="false" placeholder="Type exactly what you hear" value="${esc(api.ans||"")}">
+  <div class="btns" style="margin-top:10px"><button class="primary" data-k="check">Check</button></div><div data-k="out"></div>`;
+  const q=k=>el.querySelector(`[data-k="${k}"]`);
+  if(hasTTS) q("play").onclick=()=>speak([{t:txt}]); else q("hide").onclick=()=>{q("pre").remove();q("hide").remove()};
+  const show=()=>{ const v=q("in").value, d=diff(words(txt),words(v)), ok=d.every(x=>x[0]==="same");
+    q("out").innerHTML=`<div class="fb ${ok?"ok":"bad"}">${ok?"Correct":"Not quite"}<span class="ans">${esc(txt)}</span></div>${ok?"":`<p class="serif">${diffHTML(d)}</p>${LEGEND}`}`; return ok; };
+  const check=()=>{ if(!words(q("in").value).length)return; const ok=show(); api.mark(ok?"ok":"bad",q("in").value); };
+  q("check").onclick=check;
+  q("in").onkeydown=e=>{ if(e.key==="Enter"){ e.preventDefault(); if(q("out").innerHTML) api.next(); else check(); } };
+  if(api.res) show();
+};
+
+const STOP=new Set("a an the and or but so to of in on at for from by with as is was were be been being are am do does did have has had he she it they we you i his her its their our your my me him them us this that these those there then than when while if not no very just all any some up out into about after before over also can could would should will shall may might must what which who whom how why where one two".split(" "));
+let timer=null; const stopTimer=()=>{ if(timer){clearInterval(timer);timer=null} };
+R.pass=(i,el,api)=>{
+  const p=PASS[i];
+  const keyWords=[...new Set(words(p.p).filter(w=>!STOP.has(w)&&w.length>2))];
+  el.innerHTML=`<h3>${esc(p.t)}</h3>
+  <div data-k="read"><button class="primary" data-k="start">Start reading (30 seconds)</button></div>
+  <div class="hidden" data-k="phase1"><div class="timer" data-k="t1"></div><div class="passage serif">${esc(p.p)}</div><button data-k="ready">I’m ready to write</button></div>
+  <div class="hidden" data-k="phase2"><div class="timer" data-k="t2"></div><textarea class="textin" data-k="in" placeholder="Rewrite the passage from memory">${esc(api.ans||"")}</textarea>
+  <div class="btns" style="margin-top:10px"><button class="primary" data-k="check">Check my writing</button></div></div>
+  <div data-k="out"></div>`;
+  const q=k=>el.querySelector(`[data-k="${k}"]`);
+  const count=(node,sec,label,done)=>{ stopTimer(); let t=sec; const tick=()=>{ node.textContent=t>0?`${label}: ${t} s`:`${label}: time’s up`; if(t<=0){stopTimer(); done&&done();} t--; }; tick(); timer=setInterval(tick,1000); };
+  const write=()=>{ q("phase1").classList.add("hidden"); q("phase2").classList.remove("hidden"); q("in").focus(); count(q("t2"),90,"Writing time",null); };
+  q("start").onclick=()=>{ q("read").classList.add("hidden"); q("phase1").classList.remove("hidden"); count(q("t1"),30,"Reading time",write); };
+  q("ready").onclick=write;
+  const show=()=>{ const uw=words(q("in").value);
+    const hit=w=>uw.some(u=>u===w||(u.length>=5&&w.length>=5&&u.slice(0,5)===w.slice(0,5)));
+    const missed=keyWords.filter(w=>!hit(w)), cov=(keyWords.length-missed.length)/keyWords.length, ok=cov>=0.65;
+    q("out").innerHTML=`<div class="fb ${ok?"ok":"bad"}">${ok?"Good recall":"Some key ideas are missing"}: you used ${Math.round(cov*100)}% of the key words from the passage. Aim for 65% or more, in correct sentences.</div>
+    ${missed.length?`<p class="hint" style="margin-top:10px">Key words you left out: <span class="w miss">${missed.map(esc).join("</span>, <span class=\"w miss\">")}</span></p>`:""}
+    <div class="compare"><div><small>Your answer</small>${esc(q("in").value)}</div><div><small>Model answer</small>${esc(p.m)}</div><div><small>Original passage</small>${esc(p.p)}</div></div>`;
+    return ok; };
+  q("check").onclick=()=>{ if(!words(q("in").value).length)return; stopTimer(); const ok=show(); api.mark(ok?"ok":"bad",q("in").value); };
+  if(api.res){ q("read").classList.add("hidden"); q("phase2").classList.remove("hidden"); show(); }
+};
+
+/* ---------- views ---------- */
+const main=document.getElementById("main"), tabs=document.getElementById("tabs");
+let current="overview";
+const TABS=[{id:"overview",name:"Overview"},{id:"mock",name:"Mock test"},...SECS,{id:"key",name:"Answer key"}];
+function drawTabs(){ tabs.innerHTML=""; TABS.forEach(t=>{ const b=document.createElement("button"); b.role="tab"; b.textContent=t.name; b.setAttribute("aria-selected",t.id===current); b.onclick=()=>go(t.id); tabs.append(b); }); }
+function go(id){ if(window.mockAbort)mockAbort(); current=id; stopTimer(); if(hasTTS)speechSynthesis.cancel(); drawTabs(); render(); window.scrollTo(0,0); const sel=tabs.querySelector('[aria-selected="true"]'); sel&&sel.scrollIntoView&&sel.scrollIntoView({block:"nearest",inline:"center"}); }
+
+function counts(sec){ const s=S(sec); const v=Object.values(s.res); const ok=v.filter(x=>x==="ok").length, bad=v.filter(x=>x==="bad").length; return {ok,bad,left:sec.items.length-ok-bad,total:sec.items.length}; }
+
+function render(){
+  if(current==="overview") return renderOverview();
+  if(current==="key") return renderKey();
+  if(current==="mock") return renderMock();
+  renderSection(SECS.find(s=>s.id===current));
+}
+
+function renderOverview(){
+  const total=SECS.reduce((n,s)=>n+s.items.length,0);
+  main.innerHTML=`<div class="mk-cta"><div><b>Ready for the real thing?</b><br><span>Take a timed mock test in the Versant format and get a score on the 20–80 scale.</span></div><button class="primary" data-go="mock">Take a mock test</button></div><h2>All sections in one place</h2>
+  <p class="tip">${total} practice items across six sections, with duplicates removed and answers checked. Pick a section to start. Your progress is saved in this browser.</p>
+  <div class="grid">${SECS.map(sec=>{ const c=counts(sec); return `<div class="tilecard"><span class="skill">${sec.skill}</span><h3 style="margin:0">${sec.name}</h3>
+    <p>${c.total} items, ${c.ok} correct, ${c.bad} wrong</p>
+    <div class="mini"><span class="p-ok" style="width:${c.ok/c.total*100}%"></span><span class="p-bad" style="width:${c.bad/c.total*100}%"></span></div>
+    <button class="primary" data-go="${sec.id}">${c.ok+c.bad?"Continue":"Start"}</button></div>`; }).join("")}</div>
+  <div class="note"><h3>What was cleaned up</h3><ul>
+    <li>Repeats: 330 unique sentences after merging Tests 1–10 with the practice list. Exact and near-duplicates were removed, and sentences that were garbled in the source and couldn’t be confirmed were dropped.</li>
+    <li>Sentence Builds: 110 items. Five duplicates or unclear items were removed, and phrases that didn’t add up to the answer were fixed (for example, “were sold” → “was sold”, “someone to leave” → “someone to lead”).</li>
+    <li>Conversations: 36 unique items from four overlapping lists. One wrong answer was corrected: the shirt question’s answer is the fabric, not the colour.</li>
+    <li>Sentence Completion: 144 unique blanks (unchanged from your earlier sheet).</li>
+    <li>Dictation: 78 sentences. One duplicate and one garbled line were removed, and two lines were corrected.</li>
+    <li>Passage Reconstruction: 37 passages. Model answers were rewritten to keep every key event and its order.</li>
+  </ul></div>
+  <p class="hint" style="margin-top:14px">Audio uses your browser’s built-in voice. Speaking checks need Chrome or Edge with microphone access; if it isn’t available, mark yourself instead.</p>`;
+  main.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>go(b.dataset.go));
+}
+
+function renderSection(sec){
+  const s=S(sec);
+  const view=s.wrongOnly?s.order.filter(i=>s.res[i]==="bad"):s.order;
+  if(s.pos>=view.length)s.pos=Math.max(0,view.length-1);
+  const c=counts(sec);
+  main.innerHTML=`<h2>${sec.name}</h2><p class="tip">${sec.tip}</p>
+  <div class="stats"><span class="ok"><b>${c.ok}</b> correct</span><span class="bad"><b>${c.bad}</b> wrong</span><span><b>${c.left}</b> not tried</span><span><b>${c.ok+c.bad?Math.round(c.ok/(c.ok+c.bad)*100)+"%":"–"}</b> score</span></div>
+  <div class="progress"><span class="p-ok" style="width:${c.ok/c.total*100}%"></span><span class="p-bad" style="width:${c.bad/c.total*100}%"></span></div>
+  <div class="tools"><button data-a="wrong">${s.wrongOnly?"Show all questions":"Practise wrong ones only"}</button><button data-a="shuffle">Shuffle order</button><button data-a="reset">Start this section over</button></div>
+  <div class="card" id="card"></div>
+  <div class="nav"><button data-a="prev">Previous</button><button class="primary" data-a="next">Next</button>
+  <label class="speed">Go to <select id="jump"></select></label></div>`;
+  const card=main.querySelector("#card");
+  main.querySelector('[data-a="wrong"]').onclick=()=>{ s.wrongOnly=!s.wrongOnly; s.pos=0; save(); render(); };
+  main.querySelector('[data-a="shuffle"]').onclick=()=>{ const a=s.order; for(let k=a.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[a[k],a[j]]=[a[j],a[k]]} s.pos=0; save(); render(); };
+  main.querySelector('[data-a="reset"]').onclick=()=>{ if(!confirm(`Clear all your answers in ${sec.name}?`))return; delete ST[sec.id]; save(); render(); };
+  if(!view.length){ card.innerHTML=`<div class="empty">${s.wrongOnly?"No wrong answers to practise. Choose “Show all questions” to keep going.":"No questions here."}</div>`; main.querySelector('.nav').classList.add("hidden"); return; }
+  const jump=main.querySelector("#jump");
+  jump.innerHTML=view.map((_,n)=>`<option value="${n}" ${n===s.pos?"selected":""}>${n+1}</option>`).join("");
+  jump.onchange=()=>{ s.pos=+jump.value; save(); render(); };
+  const prev=main.querySelector('[data-a="prev"]'), next=main.querySelector('[data-a="next"]');
+  prev.disabled=s.pos===0; next.disabled=s.pos>=view.length-1;
+  const nextFn=()=>{ if(s.pos<view.length-1){ s.pos++; save(); render(); } };
+  prev.onclick=()=>{ s.pos--; save(); render(); };
+  next.onclick=nextFn;
+  const i=view[s.pos];
+  card.innerHTML=`<div class="cardtop"><span>Question ${s.pos+1} of ${view.length}</span><span class="badge ${s.res[i]||""}" id="badge">${s.res[i]==="ok"?"Correct":s.res[i]==="bad"?"Wrong":""}</span></div><div id="body"></div>`;
+  const api={res:s.res[i],ans:s.ans[i],next:nextFn,
+    mark(r,ans){ s.res[i]=r; if(ans!==undefined)s.ans[i]=ans; api.res=r; save(); const b=card.querySelector("#badge"); b.className="badge "+r; b.textContent=r==="ok"?"Correct":"Wrong"; refreshStats(sec); }};
+  R[sec.id](i,card.querySelector("#body"),api);
+  const first=card.querySelector("input,textarea"); if(first&&!api.res&&sec.id!=="pass"&&sec.id!=="repeat") first.focus({preventScroll:true});
+}
+
+function refreshStats(sec){
+  const c=counts(sec);
+  const st=main.querySelector(".stats"); if(!st)return;
+  st.innerHTML=`<span class="ok"><b>${c.ok}</b> correct</span><span class="bad"><b>${c.bad}</b> wrong</span><span><b>${c.left}</b> not tried</span><span><b>${c.ok+c.bad?Math.round(c.ok/(c.ok+c.bad)*100)+"%":"–"}</b> score</span>`;
+  const p=main.querySelector(".progress"); p.children[0].style.width=c.ok/c.total*100+"%"; p.children[1].style.width=c.bad/c.total*100+"%";
+}
+
+function renderKey(){
+  main.innerHTML=`<div class="key"><h2>Answer key</h2>
+  <p class="tip">Every item from all six sections on one sheet, with answers. Use it for revision or print it.</p>
+  <button class="noprint" id="print">Print this sheet</button>
+  <h3>Repeat (${REPEAT.length})</h3><ol>${REPEAT.map(t=>`<li>${esc(t)}</li>`).join("")}</ol>
+  <h3>Sentence Builds (${BUILDS.length})</h3><ol>${BUILDS.map(([c,a])=>`<li><span class="sub">${c.map(esc).join(" / ")}</span><br><span class="a">${esc(a.join("  or  "))}</span></li>`).join("")}</ol>
+  <h3>Conversations (${CONV.length})</h3><ol>${CONV.map(c=>`<li><span class="sub">${c.l.map(esc).join(" — ")}</span><br>${esc(c.q)} <span class="a">${esc(c.a)}</span></li>`).join("")}</ol>
+  <h3>Sentence Completion (${FIB.length})</h3><ol>${FIB.map(([s,a])=>`<li>${esc(s).replace("___",`<span class="a">${esc(a[0])}</span>`)}${a.length>1?` <span class="sub">(also: ${esc(a.slice(1).join(", "))})</span>`:""}</li>`).join("")}</ol>
+  <h3>Dictation (${DICT.length})</h3><ol>${DICT.map(t=>`<li>${esc(t)}</li>`).join("")}</ol>
+  <h3>Passage Reconstruction (${PASS.length})</h3><ol>${PASS.map(p=>`<li><b>${esc(p.t)}</b><br><span class="sub">Original:</span> ${esc(p.p)}<br><span class="sub">Model answer:</span> <span class="a" style="font-weight:400">${esc(p.m)}</span></li>`).join("")}</ol></div>`;
+  main.querySelector("#print").onclick=()=>window.print();
+}
+
+drawTabs(); render();
+</script>
+<script>
+/* ================= Mock test (Versant 4 Skills Essential format) ================= */
+const MK_BLUEPRINT=[
+ {id:"repeat",letter:"A",name:"Repeat",full:16,short:8,how:"speak",
+  ins:"You will hear a sentence once. Repeat it exactly as you heard it. Start speaking as soon as the beep-light turns red.",time:"About 15 seconds to answer"},
+ {id:"builds",letter:"B",name:"Sentence Builds",full:10,short:5,how:"speak",
+  ins:"You will hear three short phrases in a mixed-up order. Put them in an order that makes a sentence and say the sentence.",time:"About 15 seconds to answer"},
+ {id:"conv",letter:"C",name:"Conversations",full:12,short:6,how:"speak",
+  ins:"You will hear a short conversation between two people, then a question. Answer the question in a word or a short phrase.",time:"10 seconds to answer"},
+ {id:"fib",letter:"D",name:"Sentence Completion",full:20,short:10,how:"type",
+  ins:"Read the sentence and type one word that fits the blank. Press Enter to move on.",time:"25 seconds per sentence"},
+ {id:"dict",letter:"E",name:"Dictation",full:16,short:8,how:"type",
+  ins:"You will hear a sentence once. Type it exactly as you hear it. Spelling and small words count. Press Enter to move on.",time:"25 seconds per sentence"},
+ {id:"pass",letter:"F",name:"Passage Reconstruction",full:3,short:2,how:"type",
+  ins:"Read a short passage for 30 seconds. It then disappears and you have 90 seconds to rewrite it in your own words, keeping the meaning.",time:"30 s reading, 90 s writing"}
+];
+const MK_POOL={repeat:REPEAT,builds:BUILDS,conv:CONV,fib:FIB,dict:DICT,pass:PASS};
+const MK_HIST="versant-mock-history", MK_USED="versant-mock-used";
+const mkLoad=(k,d)=>{try{return JSON.parse(localStorage.getItem(k)||"null")??d}catch(e){return d}};
+const mkSave=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+
+/* Versant reports 20–80. Raw proportion → scale (monotone, steeper in the middle like an IRT curve). */
+const MK_PTS=[[0,20],[.2,26],[.4,36],[.6,47],[.75,58],[.9,69],[.98,79],[1,80]];
+function mkScale(p){ p=Math.max(0,Math.min(1,p)); for(let k=1;k<MK_PTS.length;k++){ const [x1,y1]=MK_PTS[k-1],[x2,y2]=MK_PTS[k]; if(p<=x2) return Math.round(y1+(p-x1)/(x2-x1)*(y2-y1)); } return 80; }
+const MK_BANDS=[[79,"C2"],[69,"C1"],[58,"B2"],[47,"B1"],[36,"A2"],[26,"A1"],[0,"Below A1"]];
+const mkCefr=s=>MK_BANDS.find(([m])=>s>=m)[1];
+const clamp=x=>Math.max(0,Math.min(1,x));
+const avg=a=>{a=a.filter(x=>typeof x==="number"&&!isNaN(x)); return a.length?a.reduce((s,x)=>s+x,0)/a.length:null};
+
+/* ---------- item scoring ---------- */
+function mkErrors(exp,got){ const d=diff(exp,got); return {d,err:d.filter(x=>x[0]!=="same").length,hit:d.filter(x=>x[0]==="same").length}; }
+// Versant scores Repeats, Builds and Dictation by the number of word errors.
+const mkErrScore=(err,n)=>clamp(1-err/Math.max(4,Math.ceil(n/2)));
+function mkFluency(r,nSaid){ if(!nSaid||r.latency==null) return 0;
+  const lat=clamp((3.5-r.latency)/2.5);              // starts within ~1 s → full marks
+  const wps=nSaid/Math.max(.6,r.dur);                 // natural pace ≈ 2.4+ words per second
+  return .4*lat+.6*clamp((wps-1)/1.4); }
+function mkPron(r,acc){ const c=r.conf&&r.conf>0?clamp((r.conf-.55)/.4):null; return c==null?acc:.5*c+.5*acc; }
+function mkPassage(p,text){
+  const kw=[...new Set(words(p.p).filter(w=>!STOP.has(w)&&w.length>2))], uw=words(text);
+  const stem=w=>w.slice(0,5);
+  const pos=[]; kw.forEach((w,k)=>{ const j=uw.findIndex(u=>u===w||(u.length>=5&&w.length>=5&&stem(u)===stem(w))); if(j>=0)pos.push([k,j]); });
+  const cov=kw.length?pos.length/kw.length:0;
+  // order: longest increasing run of the keywords the writer kept
+  const seq=pos.sort((a,b)=>a[1]-b[1]).map(x=>x[0]), L=[]; seq.forEach(v=>{ let lo=0,hi=L.length; while(lo<hi){const m=(lo+hi)>>1; L[m]<v?lo=m+1:hi=m;} L[lo]=v; });
+  const order=seq.length?L.length/seq.length:0;
+  const sents=text.split(/(?<=[.!?])\s+/).map(s=>s.trim()).filter(Boolean);
+  const caps=sents.length?sents.filter(s=>/^[A-Z"“]/.test(s)).length/sents.length:0;
+  const ends=/[.!?]["”]?\s*$/.test(text.trim())?1:0;
+  const lenR=uw.length/Math.max(1,words(p.p).length), len=lenR>=.6&&lenR<=1.4?1:clamp(1-Math.abs(lenR<.6?.6-lenR:lenR-1.4)*2);
+  const mech=uw.length?(caps*.4+ends*.2+len*.4):0;
+  return {score:clamp(.7*clamp(cov/.85)+.15*order+.15*mech),cov,order,mech};
+}
+
+/* ---------- audio ---------- */
+function mkSay(parts,done){
+  if(!hasTTS){ done(); return; }
+  speechSynthesis.cancel(); let k=0;
+  const next=()=>{ if(T.dead)return; if(k>=parts.length){ later(done,250); return; }
+    const p=parts[k++], u=new SpeechSynthesisUtterance(p.t), v=voiceFor(p.v||0);
+    if(v){u.voice=v;u.lang=v.lang}else u.lang="en-US"; u.rate=parseFloat(rateSel.value);
+    let fired=false; const fin=()=>{ if(fired)return; fired=true; later(next,k>=parts.length?0:(p.gap||650)); };
+    u.onend=fin; u.onerror=fin; later(fin,2500+p.t.length*130/u.rate); speechSynthesis.speak(u); };
+  later(next,150);
+}
+function mkListen(opt,cb){
+  let r; try{ r=new SR(); }catch(e){ cb({text:"",err:"start"}); return; }
+  r.lang="en-US"; r.interimResults=true; r.continuous=false; r.maxAlternatives=1;
+  const t0=performance.now(); let tFirst=null,tLast=null,text="",conf=null,err=null,ended=false;
+  const fin=()=>{ if(ended)return; ended=true; T.rec=null;
+    cb({text:text.trim(),conf,err,latency:tFirst==null?null:(tFirst-t0)/1000,dur:tFirst==null?0:Math.max(0,(tLast-tFirst)/1000)}); };
+  r.onspeechstart=()=>{ if(tFirst==null)tFirst=performance.now(); };
+  r.onresult=e=>{ const now=performance.now(); if(tFirst==null)tFirst=now; tLast=now; let t="",c=[];
+    for(const res of e.results){ t+=res[0].transcript; if(res.isFinal&&res[0].confidence)c.push(res[0].confidence); }
+    text=t; if(c.length)conf=avg(c); opt.onText&&opt.onText(t); };
+  r.onerror=e=>{ err=e.error; };
+  r.onend=fin;
+  later(()=>{ if(tFirst==null&&!ended){ try{r.abort()}catch(e){} fin(); } },opt.silence||6000);
+  later(()=>{ if(!ended){ try{r.stop()}catch(e){} later(fin,1200); } },opt.max||15000);
+  T.rec=r; try{ r.start(); }catch(e){ err="start"; fin(); }
+}
+
+/* ---------- test state ---------- */
+let T={dead:true,timers:[]};
+function later(fn,ms){ const id=setTimeout(()=>{ if(!T.dead)fn(); },ms); T.timers.push(id); return id; }
+function every(fn,ms){ const id=setInterval(()=>{ if(T.dead)clearInterval(id); else fn(); },ms); T.timers.push(id); return id; }
+function clearTimers(){ T.timers.forEach(id=>{clearTimeout(id);clearInterval(id)}); T.timers=[]; }
+function mockAbort(){ if(T.dead)return; T.dead=true; clearTimers(); try{T.rec&&T.rec.abort()}catch(e){} if(hasTTS)speechSynthesis.cancel(); document.body.classList.remove("intest"); }
+window.mockAbort=mockAbort;
+let mkMic=null; // null = not checked, true = working, false = not available
+let mkView={len:"full",report:null,quit:false};
+
+function mkPick(sec,n){
+  const used=mkLoad(MK_USED,{}), pool=MK_POOL[sec].map((_,i)=>i), u=new Set(used[sec]||[]);
+  let fresh=pool.filter(i=>!u.has(i)); if(fresh.length<n){ fresh=pool; used[sec]=[]; }
+  for(let k=fresh.length-1;k>0;k--){ const j=Math.floor(Math.random()*(k+1)); [fresh[k],fresh[j]]=[fresh[j],fresh[k]]; }
+  const out=fresh.slice(0,n); used[sec]=[...(used[sec]||[]),...out]; mkSave(MK_USED,used); return out;
+}
+
+/* ---------- home ---------- */
+function renderMock(){
+  if(mkView.report) return mkReport(mkView.report);
+  const hist=mkLoad(MK_HIST,[]);
+  const n=k=>MK_BLUEPRINT.reduce((s,p)=>s+p[k],0);
+  main.innerHTML=`<h2>Mock test</h2>
+  <p class="tip">A timed test in the Versant English (4 skills) format. Audio plays once, you can’t go back, and each question moves on by itself when time runs out. You get a score report at the end.</p>
+  ${mkView.quit?`<div class="fb bad">Test stopped. Nothing was scored.</div>`:""}
+  <div class="card">
+    <h3>1. Choose the length</h3>
+    <div class="mk-opts">
+      <label class="mk-opt"><input type="radio" name="mklen" id="mklen-full" value="full" ${mkView.len==="full"?"checked":""}><span><b>Full test</b><small>${n("full")} questions, about 30 minutes</small></span></label>
+      <label class="mk-opt"><input type="radio" name="mklen" id="mklen-short" value="short" ${mkView.len==="short"?"checked":""}><span><b>Short test</b><small>${n("short")} questions, about 15 minutes</small></span></label>
+    </div>
+    <h3 style="margin-top:16px">2. Check your microphone</h3>
+    <p class="hint">Parts A to C are spoken. Use Chrome or Edge, allow the microphone, and wear headphones so the app doesn’t hear its own voice.</p>
+    <div class="mk-mic"><button id="mkMicBtn" ${SR?"":"disabled"}>Test microphone</button><span id="mkMicState">${!SR?`<span class="pill bad">This browser can’t recognise speech</span>`:mkMic===true?`<span class="pill ok">Microphone working</span>`:mkMic===false?`<span class="pill bad">Microphone not working</span>`:`<span class="pill">Not tested yet</span>`}</span></div>
+    <p class="heard" id="mkHeard"></p>
+    <p class="hint" id="mkNoMic" ${mkMic===true?"hidden":""}>Without a working microphone, Parts A–C are answered by typing and you won’t get a Speaking score.</p>
+    <div class="btns" style="margin-top:14px"><button class="primary" id="mkStart">Start the test</button></div>
+  </div>
+  <h3 style="margin-top:22px">What’s in the test</h3>
+  <div class="tblwrap"><table class="mk-table"><thead><tr><th>Part</th><th>Task</th><th>Questions</th><th>Time</th><th>Skills scored</th></tr></thead><tbody>
+  ${MK_BLUEPRINT.map(p=>`<tr><td class="n">${p.letter}</td><td>${p.name}</td><td class="n">${p.full} <span class="sub" style="color:var(--muted)">(short ${p.short})</span></td><td>${p.time}</td><td>${({repeat:"Speaking, Listening",builds:"Speaking, Listening",conv:"Speaking, Listening",fib:"Reading, Writing",dict:"Listening, Writing",pass:"Reading, Writing"})[p.id]}</td></tr>`).join("")}
+  </tbody></table></div>
+  ${hist.length?`<h3 style="margin-top:22px">Your past tests</h3><div class="hist">${hist.map((h,k)=>`<button data-h="${k}"><span>${new Date(h.date).toLocaleString([], {dateStyle:"medium",timeStyle:"short"})} · ${h.len==="full"?"Full":"Short"} test</span><span><b>${h.scores.overall}</b> / 80 · ${mkCefr(h.scores.overall)}</span></button>`).join("")}</div>`:""}
+  <div class="note"><h3>How the score is worked out</h3>
+  <p style="margin:6px 0 0">Pearson’s real scoring uses its own trained speech models and isn’t public, so no app can copy it exactly. This one uses the same format, timing and 20–80 scale, and scores the same things Versant looks at: how many words you get right in Repeats, Builds and Dictation; whether your Conversation and Sentence Completion answers are right; how much of the passage you keep, in the right order; and, for speaking, how quickly and smoothly you answer (fluency) and how clearly the recogniser understood you (pronunciation). Treat the result as a close estimate.</p></div>`;
+  mkView.quit=false;
+  main.querySelectorAll('input[name="mklen"]').forEach(r=>r.onchange=()=>mkView.len=r.value);
+  main.querySelectorAll("[data-h]").forEach(b=>b.onclick=()=>{ mkView.report=hist[+b.dataset.h]; render(); window.scrollTo(0,0); });
+  const micBtn=main.querySelector("#mkMicBtn");
+  if(SR) micBtn.onclick=()=>{
+    T={dead:false,timers:[]};
+    const st=main.querySelector("#mkMicState"), heard=main.querySelector("#mkHeard");
+    st.innerHTML=`<span class="mk-status"><span class="dot speak"></span>Say: “I am ready to take my test.”</span>`; heard.textContent=""; micBtn.disabled=true;
+    mkListen({silence:7000,max:9000,onText:t=>heard.textContent="Heard: "+t},r=>{
+      T.dead=true; clearTimers(); micBtn.disabled=false;
+      mkMic=!!r.text; st.innerHTML=mkMic?`<span class="pill ok">Microphone working</span>`:`<span class="pill bad">${r.err==="not-allowed"||r.err==="service-not-allowed"?"Microphone blocked. Allow it in the address bar and try again":"Nothing was heard. Try again"}</span>`;
+      heard.textContent=r.text?"Heard: "+r.text:""; const nm=main.querySelector("#mkNoMic"); if(nm)nm.hidden=mkMic;
+    });
+  };
+  main.querySelector("#mkStart").onclick=()=>mkBegin(mkView.len);
+}
+
+/* ---------- running the test ---------- */
+function mkBegin(len){
+  T={dead:false,timers:[],len,mic:mkMic===true&&!!SR,parts:MK_BLUEPRINT.map(p=>({...p,items:mkPick(p.id,p[len])})),pi:0,ii:0,res:[]};
+  document.body.classList.add("intest"); window.scrollTo(0,0); mkIntro();
+}
+function mkShell(inner){
+  const p=T.parts[T.pi];
+  main.innerHTML=`<div class="mk-head"><span class="mk-part">Part ${p.letter} · ${p.name}</span><button id="mkQuit">Stop test</button></div><div class="card">${inner}</div>`;
+  const q=main.querySelector("#mkQuit");
+  q.onclick=()=>{ if(q.dataset.sure){ mockAbort(); mkView.quit=true; render(); return; } q.dataset.sure=1; q.textContent="Click again to stop. Your answers will be lost"; setTimeout(()=>{ if(q.isConnected){ delete q.dataset.sure; q.textContent="Stop test"; } },4000); };
+  return main.querySelector(".card");
+}
+function mkIntro(){
+  const p=T.parts[T.pi], typedSpeak=p.how==="speak"&&!T.mic;
+  const c=mkShell(`<h2>Part ${p.letter}: ${p.name}</h2><p class="tip">${p.ins}</p>
+  ${typedSpeak?`<p class="hint">No microphone: ${p.id==="builds"?"tap the phrases in order instead of speaking.":"type your answer instead of speaking."}</p>`:""}
+  <p class="hint">${p.items.length} questions · ${p.time}</p><div class="btns"><button class="primary" id="mkGo">Start Part ${p.letter}</button></div>`);
+  c.querySelector("#mkGo").onclick=()=>{ T.ii=0; mkItem(); };
+  c.querySelector("#mkGo").focus();
+}
+function mkStage(html){
+  const p=T.parts[T.pi];
+  return mkShell(`<div class="cardtop"><span>Question ${T.ii+1} of ${p.items.length}</span><span>Part ${T.pi+1} of ${T.parts.length}</span></div><div class="mk-stage">${html}</div>`);
+}
+const mkStatus=(c,cls,t)=>{ c.querySelector("[data-st]").innerHTML=`<span class="dot ${cls}"></span>${t}`; };
+function mkCountdown(c,secs,onEnd){
+  const bar=c.querySelector("[data-cd]"), txt=c.querySelector("[data-cdt]"); let t=secs;
+  const draw=()=>{ if(bar)bar.style.width=(t/secs*100)+"%"; if(txt)txt.textContent=`${t} s left`; };
+  draw(); every(()=>{ t--; draw(); if(t<=0){ clearTimers(); onEnd(); } },1000);
+}
+const CD=`<div class="cd"><span data-cd style="width:100%"></span></div><div class="cdtxt" data-cdt></div>`;
+
+function mkDone(r){
+  const p=T.parts[T.pi]; clearTimers(); try{T.rec&&T.rec.abort()}catch(e){}
+  T.res.push({sec:p.id,i:p.items[T.ii],...r});
+  if(T.ii<p.items.length-1){ T.ii++; later(mkItem,700); }
+  else if(T.pi<T.parts.length-1){ T.pi++; later(mkIntro,500); }
+  else later(mkFinish,400);
+}
+function mkItem(){ const p=T.parts[T.pi]; MK_RUN[p.id](p.items[T.ii]); }
+
+/* spoken answer helper used by A–C */
+function mkSpoken(c,opt,score){
+  mkStatus(c,"speak","Speak now"); const heard=c.querySelector(".heard");
+  mkListen({silence:opt.silence||6000,max:opt.max||15000,onText:t=>heard.textContent=t},r=>{
+    if(T.dead)return;
+    if(r.err==="not-allowed"||r.err==="service-not-allowed"){ T.mic=false; }
+    mkStatus(c,"","Saved"); mkDone({said:r.text,mode:"voice",...score(r)});
+  });
+}
+/* typed answer helper */
+function mkTyped(c,secs,score,opt={}){
+  const inp=c.querySelector("[data-in]"); let sent=false;
+  const send=()=>{ if(sent)return; sent=true; mkDone({said:inp.value.trim(),mode:"typed",...score(inp.value)}); };
+  inp.disabled=false; inp.focus({preventScroll:true});
+  if(!opt.multiline) inp.onkeydown=e=>{ if(e.key==="Enter"){ e.preventDefault(); send(); } };
+  const b=c.querySelector("[data-send]"); if(b)b.onclick=send;
+  mkCountdown(c,secs,send);
+}
+const NOTTS_SHOW=(c,text,next)=>{ const el=c.querySelector("[data-noaudio]"); if(!hasTTS&&el){ el.textContent=text; el.hidden=false; later(()=>{ el.hidden=true; next(); },Math.max(3000,text.length*70)); return true; } return false; };
+
+const MK_RUN={
+ repeat(i){
+  const txt=REPEAT[i], exp=words(txt);
+  const c=mkStage(`<div class="mk-status" data-st></div><p class="serif" data-noaudio hidden></p>${T.mic?`<p class="heard"></p>`:`<input class="textin" data-in disabled type="text" autocomplete="off" spellcheck="false" placeholder="Type the sentence you heard">${CD}`}`);
+  mkStatus(c,"listen","Listen");
+  const go=()=>{
+    if(T.mic) mkSpoken(c,{},r=>{ const g=words(r.text),{err,hit}=mkErrors(exp,g); const acc=hit/exp.length; return {score:mkErrScore(err,exp.length),flu:mkFluency(r,g.length),pro:r.text?mkPron(r,acc):0}; });
+    else { mkStatus(c,"","Type what you heard"); mkTyped(c,20,v=>({score:mkErrScore(mkErrors(exp,words(v)).err,exp.length)})); }
+  };
+  if(!NOTTS_SHOW(c,txt,go)) mkSay([{t:txt}],go);
+ },
+ builds(i){
+  const [chunks,answers]=BUILDS[i];
+  const best=g=>answers.map(a=>{ const e=words(a); return {e,...mkErrors(e,g)}; }).sort((x,y)=>x.err-y.err)[0];
+  const c=mkStage(`<div class="mk-status" data-st></div><p class="serif" data-noaudio hidden></p>${T.mic?`<p class="heard"></p>`:`<div class="line" data-line></div><div class="pool" data-pool></div><div class="btns"><button class="primary" data-send>Submit</button><button data-clear>Clear</button></div>${CD}`}`);
+  mkStatus(c,"listen","Listen");
+  const go=()=>{
+    if(T.mic) return mkSpoken(c,{},r=>{ const g=words(r.text),b=best(g); return {score:mkErrScore(b.err,b.e.length),flu:mkFluency(r,g.length),pro:r.text?mkPron(r,b.hit/b.e.length):0}; });
+    mkStatus(c,"","Tap the phrases in order");
+    let picked=[],sent=false; const line=c.querySelector("[data-line]"),pool=c.querySelector("[data-pool]");
+    const draw=()=>{ line.innerHTML="";pool.innerHTML="";
+      picked.forEach((k,pi)=>{const b=document.createElement("button");b.className="tile";b.textContent=chunks[k];b.onclick=()=>{picked.splice(pi,1);draw()};line.append(b);});
+      chunks.forEach((t,k)=>{ if(picked.includes(k))return; const b=document.createElement("button");b.className="tile";b.textContent=t;b.onclick=()=>{picked.push(k);draw()};pool.append(b);}); };
+    draw();
+    const send=()=>{ if(sent)return; sent=true; const said=picked.map(k=>chunks[k]).join(" "); const b=best(words(said)); mkDone({said,mode:"typed",score:picked.length===chunks.length&&b.err===0?1:0}); };
+    c.querySelector("[data-send]").onclick=send; c.querySelector("[data-clear]").onclick=()=>{picked=[];draw()};
+    mkCountdown(c,20,send);
+  };
+  if(!NOTTS_SHOW(c,chunks.join("  …  "),go)) mkSay(chunks.map(t=>({t,gap:550})),go);
+ },
+ conv(i){
+  const cv=CONV[i];
+  const right=v=>{ const w=words(v); return w.length&&cv.k.every(g=>g.some(k=>w.some(x=>x.startsWith(k))))?1:0; };
+  const c=mkStage(`<div class="mk-status" data-st></div><p class="serif" data-noaudio hidden></p>${T.mic?`<p class="heard"></p>`:`<input class="textin" data-in disabled type="text" autocomplete="off" placeholder="Type a short answer">${CD}`}`);
+  mkStatus(c,"listen","Listen to the conversation and the question");
+  const go=()=>{
+    if(T.mic) mkSpoken(c,{max:10000},r=>({score:right(r.text)}));
+    else { mkStatus(c,"","Type your answer"); mkTyped(c,15,v=>({score:right(v)})); }
+  };
+  const all=[...cv.l,"Question: "+cv.q].join("  ");
+  if(!NOTTS_SHOW(c,all,go)) mkSay([...cv.l.map((t,n)=>({t,v:n%2})),{t:cv.q,v:0,gap:900}],go);
+ },
+ fib(i){
+  const [s,acc]=FIB[i], parts=s.split("___");
+  const c=mkStage(`<div class="mk-status" data-st></div><p class="serif">${esc(parts[0])}<input class="blank" data-in type="text" autocomplete="off" spellcheck="false" autocapitalize="off" aria-label="Missing word">${esc(parts[1]||"")}</p>${CD}`);
+  mkStatus(c,"","Type the missing word, then press Enter");
+  mkTyped(c,25,v=>({score:acc.some(a=>same(a,v))?1:0}));
+ },
+ dict(i){
+  const txt=DICT[i], exp=words(txt);
+  const c=mkStage(`<div class="mk-status" data-st></div><p class="serif" data-noaudio hidden></p><input class="textin" data-in disabled type="text" autocomplete="off" spellcheck="false" placeholder="Type exactly what you hear">${CD}`);
+  mkStatus(c,"listen","Listen");
+  const go=()=>{ mkStatus(c,"","Type the sentence, then press Enter"); mkTyped(c,25,v=>({score:mkErrScore(mkErrors(exp,words(v)).err,exp.length)})); };
+  if(!NOTTS_SHOW(c,txt,go)) mkSay([{t:txt}],go);
+ },
+ pass(i){
+  const p=PASS[i];
+  const c=mkStage(`<div class="mk-status" data-st></div><div data-ph1><div class="passage serif">${esc(p.p)}</div></div><div data-ph2 hidden><textarea class="textin" data-in disabled placeholder="Rewrite the passage in your own words"></textarea><div class="btns" style="margin-top:8px"><button class="primary" data-send>Submit</button></div></div>${CD}`);
+  mkStatus(c,"listen","Read the passage");
+  mkCountdown(c,30,()=>{
+    c.querySelector("[data-ph1]").hidden=true; c.querySelector("[data-ph2]").hidden=false;
+    mkStatus(c,"","Rewrite the passage");
+    mkTyped(c,90,v=>{ const r=mkPassage(p,v); return {score:r.score,detail:{cov:r.cov,order:r.order,mech:r.mech}}; },{multiline:true});
+  });
+ }
+};
+
+/* ---------- scoring the whole test ---------- */
+function mkCompute(res,mic){
+  const part={}; MK_BLUEPRINT.forEach(p=>part[p.id]=avg(res.filter(r=>r.sec===p.id).map(r=>r.score))??0);
+  const spoken=res.filter(r=>r.mode==="voice"&&(r.sec==="repeat"||r.sec==="builds"));
+  const flu=avg(spoken.map(r=>r.flu)), pro=avg(spoken.map(r=>r.pro));
+  const voiceUsed=mic&&spoken.length>0;
+  const speakContent=avg([part.repeat,part.builds,part.conv]);
+  const raw={
+    speaking:voiceUsed?.4*speakContent+.3*(flu??0)+.3*(pro??0):null,
+    listening:avg([part.repeat,part.builds,part.conv,part.dict]),
+    reading:(2*part.fib+part.pass)/3,
+    writing:(part.fib+part.dict+2*part.pass)/4
+  };
+  const sc={}; Object.entries(raw).forEach(([k,v])=>sc[k]=v==null?null:mkScale(v));
+  const present=Object.values(sc).filter(v=>v!=null);
+  sc.overall=Math.round(present.reduce((a,b)=>a+b,0)/present.length);
+  sc.fluency=voiceUsed?mkScale(flu??0):null; sc.pronunciation=voiceUsed?mkScale(pro??0):null;
+  sc.part=Object.fromEntries(Object.entries(part).map(([k,v])=>[k,Math.round(v*100)]));
+  return sc;
+}
+function mkFinish(){
+  const att={date:Date.now(),len:T.len,mic:T.mic,res:T.res};
+  att.scores=mkCompute(att.res,att.mic);
+  const hist=mkLoad(MK_HIST,[]); hist.unshift(att); mkSave(MK_HIST,hist.slice(0,10));
+  mockAbort(); mkView.report=att; render(); window.scrollTo(0,0);
+}
+
+/* ---------- report ---------- */
+function mkBar(name,score){
+  if(score==null) return `<div class="skill"><span class="nm">${name}</span><span class="hint" style="margin:0">Not scored (no microphone)</span><span></span></div>`;
+  const pct=x=>(x-20)/60*100;
+  return `<div class="skill"><span class="nm">${name}</span><div class="track" role="img" aria-label="${name} ${score} out of 80"><div class="fill" style="width:${pct(score)}%"></div>${[26,36,47,58,69,79].map(t=>`<span class="tk" style="left:${pct(t)}%"></span>`).join("")}</div><span class="sc">${score}</span></div>`;
+}
+function mkReviewItem(r){
+  const pct=Math.round(r.score*100), said=r.said?esc(r.said):`<i>No response</i>`;
+  const tag=`<span class="pill ${pct>=80?"ok":pct<50?"bad":""}">${pct}%</span>`;
+  if(r.sec==="repeat"||r.sec==="dict"){ const t=MK_POOL[r.sec][r.i];
+    return `<div class="ritem">${tag} <span class="q">${esc(t)}</span><span class="you">${r.said?diffHTML(diff(words(t),words(r.said))):said}</span></div>`; }
+  if(r.sec==="builds"){ const [ch,a]=BUILDS[r.i]; return `<div class="ritem">${tag} <span class="q">${ch.map(esc).join(" / ")} → ${esc(a[0])}</span><span class="you">You said: ${said}</span></div>`; }
+  if(r.sec==="conv"){ const c=CONV[r.i]; return `<div class="ritem">${tag} <span class="q">${esc(c.q)} Answer: ${esc(c.a)}</span><span class="you">You said: ${said}</span></div>`; }
+  if(r.sec==="fib"){ const [s,a]=FIB[r.i]; return `<div class="ritem">${tag} <span class="q">${esc(s).replace("___",`<b>${esc(a.join(" / "))}</b>`)}</span><span class="you">You wrote: ${said}</span></div>`; }
+  const p=PASS[r.i], d=r.detail||{cov:0,order:0,mech:0};
+  return `<div class="ritem">${tag} <b>${esc(p.t)}</b> <span class="q">· key ideas kept ${Math.round(d.cov*100)}%, order ${Math.round(d.order*100)}%, sentence form ${Math.round(d.mech*100)}%</span>
+    <div class="compare"><div><small>Your answer</small>${said}</div><div><small>Model answer</small>${esc(p.m)}</div></div></div>`;
+}
+function mkReport(att){
+  const s=att.scores, silent=att.res.filter(r=>!r.said).length, total=att.res.length;
+  main.innerHTML=`<div class="mk-head"><h2 style="margin:0">Score report</h2><span class="hint" style="margin:0">${new Date(att.date).toLocaleString([], {dateStyle:"medium",timeStyle:"short"})} · ${att.len==="full"?"Full":"Short"} test</span></div>
+  ${silent/total>.4?`<div class="fb bad">You didn’t answer ${silent} of ${total} questions. The real test may not report a score when this many answers are missing.</div>`:""}
+  <div class="card"><div class="mk-overall"><div class="mk-big">${s.overall}<small> / 80</small></div>
+  <div><div class="mk-cefr">CEFR ${mkCefr(s.overall)}</div><p class="hint" style="margin:4px 0 0">Overall score on the Versant 20–80 scale. It is the average of the skill scores below.</p></div></div></div>
+  <div class="card"><h3>Skill scores</h3>
+  ${mkBar("Speaking",s.speaking)}${mkBar("Listening",s.listening)}${mkBar("Reading",s.reading)}${mkBar("Writing",s.writing)}
+  <div class="bands" aria-hidden="true">${[["A1",26],["A2",36],["B1",47],["B2",58],["C1",69],["C2",79]].map(([l,v])=>`<span style="left:${(v-20)/60*100}%">${l}</span>`).join("")}</div>
+  ${s.fluency!=null?`<div class="mk-traits"><div>Fluency <b>${s.fluency}</b></div><div>Pronunciation <b>${s.pronunciation}</b></div></div><p class="hint" style="margin-top:8px">Fluency comes from how quickly you start and how smoothly you speak. Pronunciation comes from how confidently the speech recogniser understood your words.</p>`:""}</div>
+  <div class="card"><h3>By part</h3><div class="tblwrap"><table class="mk-table"><thead><tr><th>Part</th><th>Questions</th><th>Accuracy</th></tr></thead><tbody>
+  ${MK_BLUEPRINT.map(p=>`<tr><td>${p.letter}. ${p.name}</td><td class="n">${att.res.filter(r=>r.sec===p.id).length}</td><td class="n">${s.part[p.id]}%</td></tr>`).join("")}</tbody></table></div></div>
+  <div class="card"><h3>Your answers</h3><p class="hint">${LEGEND.replace(/<\/?div[^>]*>/g,"")}</p>
+  ${MK_BLUEPRINT.map(p=>{ const rs=att.res.filter(r=>r.sec===p.id); return rs.length?`<details class="rev"><summary>${p.letter}. ${p.name} · ${s.part[p.id]}%</summary>${rs.map(mkReviewItem).join("")}</details>`:""; }).join("")}</div>
+  <div class="btns"><button class="primary" id="mkAgain">Take another test</button><button id="mkHome">Back to mock test home</button></div>`;
+  main.querySelector("#mkAgain").onclick=()=>{ mkView.report=null; mkBegin(att.len); };
+  main.querySelector("#mkHome").onclick=()=>{ mkView.report=null; render(); window.scrollTo(0,0); };
+}
+</script>
+</body>
+</html>
