@@ -147,6 +147,75 @@ details.rev summary{cursor:pointer;font-weight:600}
 .ritem audio,.recrow audio{display:block;height:36px;max-width:100%;margin-top:6px}
 .hist button{width:100%;text-align:left;display:flex;justify-content:space-between;gap:10px;margin:6px 0}
 @media (max-width:560px){.mk-overall{grid-template-columns:1fr}.skill{grid-template-columns:84px 1fr 38px}.bands{margin-left:94px;margin-right:48px}.mk-big{font-size:3.2rem}}
+
+/* ---------- test screens: one fixed light look, like the real test ---------- */
+#vt{--navy:#22365F;--navy2:#2B4373;--slate:#454545;--band:#F2F2F2;--rule:#D6D6D6;--txt:#2A2A2A;--sub:#6B6B6B;--orange:#E8913A;
+  position:fixed;inset:0;z-index:50;background:#fff;color:var(--txt);display:flex;flex-direction:column;color-scheme:light;
+  font-family:"Helvetica Neue",Helvetica,Arial,system-ui,sans-serif;font-size:15px;line-height:1.5;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.vt-top{background:var(--navy);color:#fff;display:flex;justify-content:space-between;align-items:center;padding:10px 18px;gap:12px}
+.vt-brand{display:flex;align-items:center;gap:8px;font-weight:500;letter-spacing:.08em;font-size:.95rem}
+.vt-vol{display:flex;align-items:center;gap:8px;color:#fff}
+.vt-vol input{width:110px;accent-color:var(--orange)}
+.vt-body{flex:1;overflow:auto}
+.vt-wrap{max-width:860px;margin:0 auto;padding:26px 20px 40px}
+.vt-foot{background:var(--navy);color:#C9D3E6;font-size:.72rem;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:6px 18px;flex-wrap:wrap}
+.vt-foot button{background:transparent;color:#fff;border:1px solid #8193B8;border-radius:4px;padding:3px 10px;font-size:.75rem}
+.vt-h1{font-size:1.75rem;color:var(--navy);margin:0 0 14px;font-weight:700;font-family:inherit}
+.vt-band{background:var(--band);margin:0 -20px 22px;padding:12px 20px;font-size:.95rem}
+.vt-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}
+.vt-title{display:flex;align-items:center;gap:10px;font-size:1.45rem;font-weight:700;color:var(--navy)}
+.vt-letter{width:36px;height:36px;border-radius:50%;background:var(--slate);color:#fff;display:grid;place-items:center;font-size:1.25rem}
+.vt-right{font-size:1.45rem;font-weight:700;color:var(--navy);font-variant-numeric:tabular-nums}
+.vt-head .vt-right:not(:empty){min-width:0}
+.vt-prompt{font-weight:700;font-size:.92rem;margin:0 0 8px;min-height:1.4em}
+.vt-panel{position:relative;min-height:240px;border-radius:2px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#fff;padding:20px;text-align:center}
+.vt-panel.listen{background:var(--slate)}
+.vt-panel.speak{background:var(--navy2)}
+.vt-panel.read{background:var(--slate)}
+.vt-panel.small{min-height:180px;font-size:.9rem}
+.vt-panel.small p{margin:0;max-width:34ch}
+.vt-corner{position:absolute;right:10px;bottom:6px;opacity:.95;transform:scale(.45);transform-origin:bottom right}
+.vt-panel.speak .vt-icon{animation:pulse 1.4s infinite}
+.vt-panel .heard{color:#C9D3E6;font-size:.85rem;font-style:italic;margin:0;min-height:1.2em}
+.vt-noaudio{font-size:1.1rem;margin:0;max-width:44ch}
+.vt-ex{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+.vt-lab{font-weight:700;font-size:.9rem;margin-bottom:4px}
+.vt-meta{color:var(--sub);font-size:.85rem;margin:16px 0 0}
+.vt-area{margin-top:4px}
+.vt-sheet{border:1px solid var(--rule);background:#FAFAFA;padding:26px 28px;font-size:1.15rem;line-height:1.9;min-height:180px}
+.vt-sheet .blank{font-size:1.05rem;color:var(--txt);border-bottom-color:var(--navy)}
+.vt-input{width:100%;border:1px solid #9AA3AF;border-radius:2px;padding:12px 14px;font:inherit;font-size:1.05rem;background:#fff;color:var(--txt)}
+.vt-input:focus{outline:2px solid var(--navy2);outline-offset:1px}
+.vt-ta{min-height:220px;resize:vertical;line-height:1.6}
+.vt-row{display:flex;justify-content:flex-end;align-items:center;gap:10px;margin-top:10px}
+.vt-wc{margin-right:auto;color:var(--sub);font-size:.85rem}
+.vt-small{border:1px solid var(--rule);background:#fff;color:var(--txt);border-radius:3px;padding:6px 14px;font-size:.88rem}
+.vt-small.primary{background:var(--navy);border-color:var(--navy);color:#fff;font-weight:600}
+#vt .line{border-color:var(--rule)} #vt .tile{background:#F4F6FA;border-color:var(--rule);color:var(--txt)}
+#vt .line .tile{background:#E3E9F4;border-color:var(--navy2)}
+.vt-ctl{display:flex;align-items:center;gap:18px;margin-top:22px;flex-wrap:wrap}
+.vt-ctl .grow{flex:1}
+.vt-say{font-size:.95rem}
+.vt-btn{display:inline-flex;align-items:center;gap:8px;background:none;border:0;padding:4px 2px;color:var(--txt);font-size:.95rem;cursor:pointer}
+.vt-btn svg{color:var(--slate)}
+.vt-btn:hover svg{color:var(--navy2)}
+.vt-btn:focus-visible{outline:2px solid var(--navy2);outline-offset:3px;border-radius:4px}
+.vt-skipb svg{color:var(--slate)}
+.vt-cd{flex:1;min-width:160px;max-width:340px;display:flex;align-items:center;gap:10px}
+.vt-cd .cd{flex:1;background:var(--rule)} .vt-cd .cd span{background:var(--navy2)}
+.vt-cd .cdtxt{color:var(--sub);font-variant-numeric:tabular-nums;min-width:3.2em}
+.vt-table{width:100%;border-collapse:collapse;font-size:.92rem}
+.vt-table th{background:#9A9A9A;color:#fff;text-align:left;padding:7px 10px;font-weight:600}
+.vt-table td{padding:8px 10px;border-bottom:1px solid var(--rule)}
+.vt-table .l{font-weight:700;color:var(--navy);width:3em;text-align:center}
+.vt-table .r{text-align:right}
+.vt-req{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.vt-req li{border:1px solid var(--rule);padding:14px 16px;font-size:.9rem;color:var(--sub)}
+.vt-req b{display:block;color:var(--navy);font-size:1rem;margin-bottom:4px}
+@media (max-width:640px){.vt-ex{grid-template-columns:1fr;gap:16px}.vt-title,.vt-right{font-size:1.15rem}.vt-panel{min-height:200px}.vt-sheet{padding:18px;font-size:1.05rem}.vt-brand span{font-size:.8rem}.vt-vol input{width:80px}}
+@media (prefers-reduced-motion:reduce){.vt-panel.speak .vt-icon{animation:none}}
+.intest header{display:none}
+#vt [hidden]{display:none!important}
 </style>
 </head>
 <body>
@@ -1272,7 +1341,7 @@ function mkSay(parts,done){
   speechSynthesis.cancel(); let k=0;
   const next=()=>{ if(T.dead)return; if(k>=parts.length){ later(done,250); return; }
     const p=parts[k++], u=new SpeechSynthesisUtterance(p.t), v=voiceFor(p.v||0);
-    if(v){u.voice=v;u.lang=v.lang}else u.lang="en-US"; u.rate=parseFloat(rateSel.value);
+    if(v){u.voice=v;u.lang=v.lang}else u.lang="en-US"; u.rate=parseFloat(rateSel.value); u.volume=mkVol;
     let fired=false; const fin=()=>{ if(fired)return; fired=true; later(next,k>=parts.length?0:(p.gap||650)); };
     u.onend=fin; u.onerror=fin; later(fin,2500+p.t.length*130/u.rate); speechSynthesis.speak(u); };
   later(next,150);
@@ -1299,7 +1368,7 @@ let T={dead:true,timers:[]};
 function later(fn,ms){ const id=setTimeout(()=>{ if(!T.dead)fn(); },ms); T.timers.push(id); return id; }
 function every(fn,ms){ const id=setInterval(()=>{ if(T.dead)clearInterval(id); else fn(); },ms); T.timers.push(id); return id; }
 function clearTimers(){ T.timers.forEach(id=>{clearTimeout(id);clearInterval(id)}); T.timers=[]; }
-function mockAbort(){ if(T.dead)return; T.dead=true; clearTimers(); try{T.rec&&T.rec.abort()}catch(e){} if(hasTTS)speechSynthesis.cancel(); document.body.classList.remove("intest"); }
+function mockAbort(){ const o=document.getElementById("vt"); if(o)o.remove(); if(T.dead)return; T.dead=true; clearTimers(); try{T.rec&&T.rec.abort()}catch(e){} if(hasTTS)speechSynthesis.cancel(); document.body.classList.remove("intest"); }
 window.mockAbort=mockAbort;
 let mkMic=null; // null = not checked, true = working, false = not available
 let mkView={len:"full",report:null,quit:false,replay:false,record:false};
@@ -1364,53 +1433,135 @@ function renderMock(){
 }
 
 /* ---------- running the test ---------- */
+/* ---------- test screens (laid out like the official Versant test) ---------- */
+const ICON={
+ hear:`<svg viewBox="0 0 64 64" width="84" height="84" aria-hidden="true"><path d="M10 40v-8a22 22 0 0 1 44 0v8" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/><rect x="6" y="36" width="14" height="22" rx="5" fill="#fff"/><rect x="44" y="36" width="14" height="22" rx="5" fill="#fff"/></svg>`,
+ say:`<svg viewBox="0 0 64 56" width="92" height="80" aria-hidden="true"><ellipse cx="32" cy="24" rx="28" ry="20" fill="#fff"/><path d="M40 40l10 13-2-15z" fill="#fff"/></svg>`,
+ read:`<svg viewBox="0 0 64 64" width="76" height="76" aria-hidden="true"><path d="M6 14c9-3 18-3 26 3v38c-8-6-17-6-26-3zM58 14c-9-3-18-3-26 3v38c8-6 17-6 26-3z" fill="#fff"/></svg>`,
+ type:`<svg viewBox="0 0 64 48" width="86" height="64" aria-hidden="true"><rect x="3" y="3" width="58" height="42" rx="6" fill="none" stroke="#fff" stroke-width="5"/><g fill="#fff"><rect x="12" y="13" width="7" height="6"/><rect x="23" y="13" width="7" height="6"/><rect x="34" y="13" width="7" height="6"/><rect x="45" y="13" width="7" height="6"/><rect x="16" y="29" width="32" height="6"/></g></svg>`,
+ next:`<svg viewBox="0 0 32 32" width="30" height="30" aria-hidden="true"><circle cx="16" cy="16" r="14" fill="none" stroke="currentColor" stroke-width="3"/><path d="M9 16h12m-5-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+ replay:`<svg viewBox="0 0 32 32" width="28" height="28" aria-hidden="true"><path d="M16 5a11 11 0 1 1-10.4 7.4" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/><path d="M4 5v8h8" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+ skip:`<svg viewBox="0 0 32 32" width="28" height="28" aria-hidden="true"><circle cx="16" cy="16" r="12" fill="none" stroke="currentColor" stroke-width="3.2"/><path d="M8 24 24 8" stroke="currentColor" stroke-width="3.2"/></svg>`,
+ vol:`<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M3 9h4l5-4v14l-5-4H3z" fill="currentColor"/><path d="M16 8a5 5 0 0 1 0 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`,
+ waves:`<svg viewBox="0 0 40 24" width="40" height="24" aria-hidden="true"><g fill="none" stroke="#E8913A" stroke-width="2.4" stroke-linecap="round"><path d="M14 4a12 12 0 0 0 0 16"/><path d="M26 4a12 12 0 0 1 0 16"/><path d="M9 1a17 17 0 0 0 0 22"/><path d="M31 1a17 17 0 0 1 0 22"/><path d="M18 8a6 6 0 0 0 0 8"/><path d="M22 8a6 6 0 0 1 0 8"/></g></svg>`
+};
+const EX={
+ repeat:{ins:"Please repeat each sentence that you hear.",a:["You hear:","You say:"],hear:"Please close the door behind you.",say:"“Please close the door behind you.”",audio:[{t:"Please close the door behind you."}],ans:"Please close the door behind you."},
+ builds:{ins:"Please rearrange the word groups into a sentence.",a:["You hear:","You say:"],hear:"“to the meeting” … “she went” … “yesterday”",say:"“She went to the meeting yesterday.”",audio:[{t:"to the meeting",gap:450},{t:"she went",gap:450},{t:"yesterday"}],ans:"She went to the meeting yesterday."},
+ conv:{ins:"You will hear a conversation between two people, followed by a question. Please give a simple answer to the question.",a:["You hear:","You say:"],hear:"Speaker 1: Did you bring an umbrella?<br>Speaker 2: No, I left it at home.<br>Question: Where is the umbrella?",say:"“At home.”",audio:[{t:"Did you bring an umbrella?",v:0},{t:"No, I left it at home.",v:1},{t:"Where is the umbrella?",v:0}],ans:"At home."},
+ fib:{ins:"Please type one word that best fits the meaning of the sentence.",a:["You read:","You type:"],hear:"Please ____ the window. It’s cold in here.",say:"close"},
+ dict:{ins:"Please type each sentence exactly as you hear it.",a:["You hear:","You type:"],hear:"The office opens at nine.",say:"The office opens at nine.",audio:[{t:"The office opens at nine."}]},
+ pass:{ins:"You will have 30 seconds to read a paragraph. Then the paragraph will disappear and you will have 90 seconds to rewrite it in your own words.",a:["You read:","You write:"],hear:"Tom missed the bus, so he walked to work. He arrived late, but his manager understood.",say:"Tom missed his bus and walked to work. He was late, but his manager was understanding."}
+};
+let mkVol=1; try{ const v=parseFloat(localStorage.getItem("versant-vol")); if(v>=0&&v<=1)mkVol=v; }catch(e){}
+
+function vtOverlay(){
+  let o=document.getElementById("vt"); if(o)return o;
+  o=document.createElement("div"); o.id="vt";
+  o.innerHTML=`<div class="vt-top"><div class="vt-brand">${ICON.waves}<span>4 SKILLS PRACTICE</span></div>
+    <label class="vt-vol" title="Volume">${ICON.vol}<input type="range" id="vtVol" min="0" max="1" step="0.05" value="${mkVol}" aria-label="Volume"></label></div>
+    <div class="vt-body"><div class="vt-wrap" id="vtWrap"></div></div>
+    <div class="vt-foot"><span>Practice app modelled on the Versant 4 Skills Essential test. Not made by Pearson.</span><button id="vtQuit">Stop test</button></div>`;
+  document.body.append(o);
+  o.querySelector("#vtVol").oninput=e=>{ mkVol=+e.target.value; try{localStorage.setItem("versant-vol",mkVol)}catch(x){} };
+  const q=o.querySelector("#vtQuit");
+  q.onclick=()=>{ if(q.dataset.sure){ mockAbort(); mkView.quit=true; render(); return; } q.dataset.sure=1; q.textContent="Click again to stop. Answers will be lost"; setTimeout(()=>{ if(q.isConnected){ delete q.dataset.sure; q.textContent="Stop test"; } },4000); };
+  return o;
+}
+function vtScreen(html){ const w=vtOverlay().querySelector("#vtWrap"); w.innerHTML=html; vtOverlay().querySelector(".vt-body").scrollTop=0; return w; }
+const vtNext=(label="Next",id="vtNext")=>`<button class="vt-btn" id="${id}">${ICON.next}<span>${label}</span></button>`;
+const vtHead=(p,right)=>`<div class="vt-head"><div class="vt-title"><span class="vt-letter">${p.letter}</span>${p.name}</div><div class="vt-right">${right}</div></div>`;
+
 async function mkBegin(len){
   const mic=mkMic===true&&!!SR;
   let record=mic&&mkView.record&&!!window.MediaRecorder;
   if(record){ try{ await mkGetStream(); }catch(e){ record=false; } }
-  T={dead:false,timers:[],len,mic,record,replay:mkView.replay&&hasTTS,tok:0,itemReplays:0,parts:MK_BLUEPRINT.map(p=>({...p,items:mkPick(p.id,p[len])})),pi:0,ii:0,res:[]};
-  document.body.classList.add("intest"); window.scrollTo(0,0); mkIntro();
+  T={dead:false,timers:[],len,mic,record,replay:mkView.replay&&hasTTS,tok:0,itemReplays:0,skip:null,parts:MK_BLUEPRINT.map(p=>({...p,items:mkPick(p.id,p[len])})),pi:0,ii:0,res:[]};
+  document.body.classList.add("intest"); vtWelcome();
 }
-function mkShell(inner){
-  const p=T.parts[T.pi];
-  main.innerHTML=`<div class="mk-head"><span class="mk-part">Part ${p.letter} · ${p.name}</span><button id="mkQuit">Stop test</button></div><div class="card">${inner}</div>`;
-  const q=main.querySelector("#mkQuit");
-  q.onclick=()=>{ if(q.dataset.sure){ mockAbort(); mkView.quit=true; render(); return; } q.dataset.sure=1; q.textContent="Click again to stop. Your answers will be lost"; setTimeout(()=>{ if(q.isConnected){ delete q.dataset.sure; q.textContent="Stop test"; } },4000); };
-  return main.querySelector(".card");
+function vtWelcome(){
+  const w=vtScreen(`<h1 class="vt-h1">Before you begin</h1>
+  <div class="vt-band">Respond to each question as you are told on the screen and in the voice prompts. You will not be able to pause the test.</div>
+  <ul class="vt-req">
+    <li><b>Headset with a microphone</b>Keep the microphone 3–5 cm from your mouth so the app hears only you.</li>
+    <li><b>A quiet room</b>Even a fan can be noisy.</li>
+    <li><b>Enough time</b>About ${T.len==="full"?"30":"15"} minutes without breaks.</li>
+    <li><b>${T.mic?"Spoken answers are on":"Typing instead of speaking"}</b>${T.mic?"Parts A–C are answered by speaking.":"No working microphone, so Parts A–C are answered by typing and Speaking isn’t scored."}${T.replay?" Replay is on, which the real test doesn’t allow.":""}${T.record?" Your spoken answers will be recorded for the report.":""}</li>
+  </ul>
+  <div class="vt-ctl"><span class="grow"></span>${vtNext()}</div>`);
+  w.querySelector("#vtNext").onclick=vtOverview; w.querySelector("#vtNext").focus();
+}
+function vtOverview(){
+  const w=vtScreen(`<h1 class="vt-h1">Overview</h1>
+  <div class="vt-band">This test has multiple parts. In each part, you will perform a different task.</div>
+  <table class="vt-table"><thead><tr><th>Part</th><th>Task</th><th class="r">Questions</th></tr></thead><tbody>
+  ${T.parts.map(p=>`<tr><td class="l">${p.letter}</td><td>${p.name}</td><td class="r">${p.items.length}</td></tr>`).join("")}</tbody></table>
+  <div class="vt-ctl"><span class="grow"></span><span class="vt-say">To start the test, please click Next.</span>${vtNext()}</div>`);
+  w.querySelector("#vtNext").onclick=()=>{ T.pi=0; mkIntro(); }; w.querySelector("#vtNext").focus();
 }
 function mkIntro(){
-  const p=T.parts[T.pi], typedSpeak=p.how==="speak"&&!T.mic;
-  const c=mkShell(`<h2>Part ${p.letter}: ${p.name}</h2><p class="tip">${p.ins}</p>
-  ${typedSpeak?`<p class="hint">No microphone: ${p.id==="builds"?"tap the phrases in order instead of speaking.":"type your answer instead of speaking."}</p>`:""}
-  <p class="hint">${p.items.length} questions · ${p.time}</p><div class="btns"><button class="primary" id="mkGo">Start Part ${p.letter}</button></div>`);
-  c.querySelector("#mkGo").onclick=()=>{ T.ii=0; mkItem(); };
-  c.querySelector("#mkGo").focus();
+  clearTimers(); if(hasTTS)speechSynthesis.cancel();
+  const p=T.parts[T.pi], ex=EX[p.id], typedSpeak=p.how==="speak"&&!T.mic;
+  const a=typedSpeak?[ex.a[0],p.id==="builds"?"You tap:":"You type:"]:ex.a;
+  const leftIcon=a[0]==="You read:"?"read":"hear", rightIcon=a[1]==="You say:"?"say":"type";
+  const w=vtScreen(`${vtHead(p,"Instructions")}
+  <div class="vt-band">${ex.ins}${typedSpeak?` <i>No microphone: ${p.id==="builds"?"tap the phrases in order":"type your answer"} instead.</i>`:""}</div>
+  <div class="vt-ex">
+    <div><div class="vt-lab">${a[0]}</div><div class="vt-panel ${leftIcon==="read"?"read":"listen"} small"><p>${ex.hear}</p><span class="vt-corner">${ICON[leftIcon]}</span></div></div>
+    <div><div class="vt-lab">${a[1]}</div><div class="vt-panel speak small"><p><i>${esc(ex.say)}</i></p><span class="vt-corner">${ICON[rightIcon]}</span></div></div>
+  </div>
+  <p class="vt-meta">${p.items.length} question${p.items.length>1?"s":""} · ${p.time}</p>
+  <div class="vt-ctl"><span class="grow"></span><button class="vt-btn" id="vtReplay">${ICON.replay}<span>Replay</span></button>${vtNext()}</div>`);
+  const narrate=()=>{ const parts=[{t:ex.ins,gap:700}]; if(ex.audio){ parts.push({t:"For example.",gap:500},...ex.audio.map(x=>({...x,gap:x.gap||600}))); if(ex.ans)parts.push({t:"You say: "+ex.ans}); } mkSay(parts,()=>{}); };
+  w.querySelector("#vtReplay").onclick=narrate;
+  w.querySelector("#vtNext").onclick=()=>{ clearTimers(); if(hasTTS)speechSynthesis.cancel(); T.ii=0; mkItem(); };
+  w.querySelector("#vtNext").focus({preventScroll:true});
+  narrate();
 }
-function mkStage(html){
-  const p=T.parts[T.pi];
-  return mkShell(`<div class="cardtop"><span>Question ${T.ii+1} of ${p.items.length}</span><span>Part ${T.pi+1} of ${T.parts.length}</span></div><div class="mk-stage">${html}<div class="btns" data-rp hidden><button data-replay>Replay audio</button></div></div>`);
+/* question screen: prompt line, one big panel, an answer area, and the controls row */
+function mkStage(html,opt={}){
+  const p=T.parts[T.pi], panel=opt.panel!==false;
+  const w=vtScreen(`${vtHead(p,`${T.ii+1} / ${p.items.length}`)}
+  <p class="vt-prompt" data-st></p>
+  ${panel?`<div class="vt-panel listen" data-panel><span class="vt-icon" data-icon>${ICON.hear}</span><p class="heard"></p><p class="vt-noaudio" data-noaudio hidden></p></div>`:""}
+  <div class="vt-area" data-area ${panel?"hidden":""}>${html}</div>
+  <div class="vt-ctl"><div class="vt-cd" data-cdw hidden>${CD}</div><span class="grow"></span>
+    <button class="vt-btn" data-rp hidden>${ICON.replay}<span>Replay</span></button>
+    <button class="vt-btn vt-skipb" data-skip title="Skip this question" aria-label="Skip this question">${ICON.skip}</button></div>`);
+  w.querySelector("[data-skip]").onclick=()=>{ T.skip&&T.skip(); };
+  return w;
 }
-const mkStatus=(c,cls,t)=>{ c.querySelector("[data-st]").innerHTML=`<span class="dot ${cls}"></span>${t}`; };
+/* modes: listen (dark panel, headphones), speak (navy panel, speech bubble), read, type (panel hidden, answer area shown) */
+const mkStatus=(c,mode,t)=>{
+  c.querySelector("[data-st]").textContent=t;
+  const pn=c.querySelector("[data-panel]"), ar=c.querySelector("[data-area]");
+  if(mode==="type"||mode==="read"){ if(pn&&mode==="type")pn.hidden=true; if(ar)ar.hidden=false; return; }
+  if(!pn||!mode)return;
+  pn.hidden=false; pn.className="vt-panel "+mode;
+  c.querySelector("[data-icon]").innerHTML=ICON[mode==="speak"?"say":"hear"];
+  if(ar&&!ar.dataset.keep)ar.hidden=true;
+};
 function mkCountdown(c,secs,onEnd){
+  const wr=c.querySelector("[data-cdw]"); if(wr)wr.hidden=false;
   const bar=c.querySelector("[data-cd]"), txt=c.querySelector("[data-cdt]"); let t=secs;
-  const draw=()=>{ if(bar)bar.style.width=(t/secs*100)+"%"; if(txt)txt.textContent=`${t} s left`; };
+  const draw=()=>{ if(bar)bar.style.width=(t/secs*100)+"%"; if(txt)txt.textContent=`${t} s`; };
   draw(); every(()=>{ t--; draw(); if(t<=0){ clearTimers(); onEnd(); } },1000);
 }
 const CD=`<div class="cd"><span data-cd style="width:100%"></span></div><div class="cdtxt" data-cdt></div>`;
 
 function mkDone(r){
-  const p=T.parts[T.pi]; clearTimers(); T.tok++; try{T.rec&&T.rec.abort()}catch(e){} if(hasTTS)speechSynthesis.cancel();
+  const p=T.parts[T.pi]; clearTimers(); T.tok++; T.skip=null; try{T.rec&&T.rec.abort()}catch(e){} if(hasTTS)speechSynthesis.cancel();
   T.res.push({sec:p.id,i:p.items[T.ii],replays:T.itemReplays,...r});
   if(T.ii<p.items.length-1){ T.ii++; later(mkItem,700); }
   else if(T.pi<T.parts.length-1){ T.pi++; later(mkIntro,500); }
   else later(mkFinish,400);
 }
-function mkItem(){ const p=T.parts[T.pi]; T.itemReplays=0; MK_RUN[p.id](p.items[T.ii]); }
+function mkItem(){ const p=T.parts[T.pi]; T.itemReplays=0; T.skip=()=>mkDone({said:"",score:0,mode:"skip"}); MK_RUN[p.id](p.items[T.ii]); }
 
-/* replay: before() runs on click, then the audio plays again, then after() */
-function mkReplay(c,parts,before,after){
-  if(!T.replay)return; const box=c.querySelector("[data-rp]"); box.hidden=false;
-  box.querySelector("button").onclick=()=>{ box.hidden=true; T.itemReplays++; before&&before(); mkStatus(c,"listen","Listen"); mkSay(parts,()=>{ after&&after(); }); };
+/* replay: before() runs on click, then the audio plays again, then after(). keep=true leaves the answer box open */
+function mkReplay(c,parts,before,after,keep){
+  if(!T.replay)return; const b=c.querySelector("[data-rp]"); b.hidden=false;
+  b.onclick=()=>{ b.hidden=true; T.itemReplays++; before&&before(); if(keep)c.querySelector("[data-st]").textContent="Please listen."; else mkStatus(c,"listen","Please listen."); mkSay(parts,()=>{ after&&after(); }); };
 }
 /* recording of spoken answers (kept in memory only) */
 let mkStream=null;
@@ -1428,100 +1579,105 @@ function mkSpoken(c,opt,score,parts){
   const heard=c.querySelector(".heard");
   const listen=()=>{
     const tok=++T.tok, rec=T.record?mkRecStart():null;
-    mkStatus(c,"speak","Speak now"); heard.textContent="";
+    mkStatus(c,"speak",opt.prompt); heard.textContent="";
+    T.skip=()=>{ if(T.rec){ try{T.rec.stop()}catch(e){} } else mkDone({said:"",score:0,mode:"skip"}); };
     mkReplay(c,parts,()=>{ T.tok++; try{T.rec&&T.rec.abort()}catch(e){} rec&&rec.stop(); clearTimers(); },listen);
     mkListen({silence:opt.silence||6000,max:opt.max||15000,onText:t=>heard.textContent=t},r=>{
       if(T.dead||tok!==T.tok)return;
       if(r.err==="not-allowed"||r.err==="service-not-allowed"){ T.mic=false; }
-      c.querySelector("[data-rp]").hidden=true; mkStatus(c,"","Saved");
+      c.querySelector("[data-rp]").hidden=true; heard.textContent="";
       const res={said:r.text,mode:"voice",...score(r)};
       (rec?rec.stop():Promise.resolve(null)).then(url=>{ if(!T.dead&&tok===T.tok)mkDone(url?{...res,audio:url}:res); });
     });
   };
   listen();
 }
-/* replay while typing: the timer keeps running */
+/* replay while typing: the timer keeps running and the answer box stays open */
 function mkTypedReplay(c,parts,label){
-  const again=()=>{ mkStatus(c,"",label); mkReplay(c,parts,null,again); const i=c.querySelector("[data-in]"); i&&i.focus({preventScroll:true}); };
-  mkReplay(c,parts,null,again);
+  const again=()=>{ c.querySelector("[data-st]").textContent=label; mkReplay(c,parts,null,again,true); const i=c.querySelector("[data-in]"); i&&i.focus({preventScroll:true}); };
+  mkReplay(c,parts,null,again,true);
 }
 /* typed answer helper */
 function mkTyped(c,secs,score,opt={}){
   const inp=c.querySelector("[data-in]"); let sent=false;
   const send=()=>{ if(sent)return; sent=true; mkDone({said:inp.value.trim(),mode:"typed",...score(inp.value)}); };
-  inp.disabled=false; inp.focus({preventScroll:true});
+  const ar=c.querySelector("[data-area]"); if(ar)ar.dataset.keep=1;
+  inp.disabled=false; inp.focus({preventScroll:true}); T.skip=send;
   if(!opt.multiline) inp.onkeydown=e=>{ if(e.key==="Enter"){ e.preventDefault(); send(); } };
   const b=c.querySelector("[data-send]"); if(b)b.onclick=send;
   mkCountdown(c,secs,send);
 }
-const NOTTS_SHOW=(c,text,next)=>{ const el=c.querySelector("[data-noaudio]"); if(!hasTTS&&el){ el.textContent=text; el.hidden=false; later(()=>{ el.hidden=true; next(); },Math.max(3000,text.length*70)); return true; } return false; };
+const NOTTS_SHOW=(c,text,next)=>{ const el=c.querySelector("[data-noaudio]"); if(!hasTTS&&el){ el.textContent=text; el.hidden=false; c.querySelector("[data-icon]").hidden=true; later(()=>{ el.hidden=true; c.querySelector("[data-icon]").hidden=false; next(); },Math.max(3000,text.length*70)); return true; } return false; };
+const TXT_IN=(ph,sp=false)=>`<input class="vt-input" data-in disabled type="text" autocomplete="off" ${sp?"":'spellcheck="false"'} placeholder="${ph}">`;
 
 const MK_RUN={
  repeat(i){
   const txt=REPEAT[i], exp=words(txt);
-  const c=mkStage(`<div class="mk-status" data-st></div><p class="serif" data-noaudio hidden></p>${T.mic?`<p class="heard"></p>`:`<input class="textin" data-in disabled type="text" autocomplete="off" spellcheck="false" placeholder="Type the sentence you heard">${CD}`}`);
-  mkStatus(c,"listen","Listen");
+  const c=mkStage(T.mic?"":TXT_IN("Type the sentence you heard"));
+  mkStatus(c,"listen","Please listen.");
   const go=()=>{
-    if(T.mic) mkSpoken(c,{},r=>{ const g=words(r.text),{err,hit}=mkErrors(exp,g); const acc=hit/exp.length; return {score:mkErrScore(err,exp.length),flu:mkFluency(r,g.length),pro:r.text?mkPron(r,acc):0}; },[{t:txt}]);
-    else { mkStatus(c,"","Type what you heard"); mkTypedReplay(c,[{t:txt}],"Type what you heard"); mkTyped(c,20,v=>({score:mkErrScore(mkErrors(exp,words(v)).err,exp.length)})); }
+    if(T.mic) mkSpoken(c,{prompt:"Repeat what you heard."},r=>{ const g=words(r.text),{err,hit}=mkErrors(exp,g); const acc=hit/exp.length; return {score:mkErrScore(err,exp.length),flu:mkFluency(r,g.length),pro:r.text?mkPron(r,acc):0}; },[{t:txt}]);
+    else { mkStatus(c,"type","Type what you heard, then press Enter."); mkTypedReplay(c,[{t:txt}],"Type what you heard, then press Enter."); mkTyped(c,20,v=>({score:mkErrScore(mkErrors(exp,words(v)).err,exp.length)})); }
   };
   if(!NOTTS_SHOW(c,txt,go)) mkSay([{t:txt}],go);
  },
  builds(i){
   const [chunks,answers]=BUILDS[i];
   const best=g=>answers.map(a=>{ const e=words(a); return {e,...mkErrors(e,g)}; }).sort((x,y)=>x.err-y.err)[0];
-  const c=mkStage(`<div class="mk-status" data-st></div><p class="serif" data-noaudio hidden></p>${T.mic?`<p class="heard"></p>`:`<div class="line" data-line></div><div class="pool" data-pool></div><div class="btns"><button class="primary" data-send>Submit</button><button data-clear>Clear</button></div>${CD}`}`);
-  mkStatus(c,"listen","Listen");
+  const c=mkStage(T.mic?"":`<div class="line" data-line></div><div class="pool" data-pool></div><div class="vt-row"><button class="vt-small" data-clear>Clear</button><button class="vt-small primary" data-send>Submit</button></div>`);
+  mkStatus(c,"listen","Please listen.");
+  const aud=chunks.map(t=>({t,gap:550}));
   const go=()=>{
-    const aud=chunks.map(t=>({t,gap:550}));
-    if(T.mic) return mkSpoken(c,{},r=>{ const g=words(r.text),b=best(g); return {score:mkErrScore(b.err,b.e.length),flu:mkFluency(r,g.length),pro:r.text?mkPron(r,b.hit/b.e.length):0}; },aud);
-    mkStatus(c,"","Tap the phrases in order"); mkTypedReplay(c,aud,"Tap the phrases in order");
+    if(T.mic) return mkSpoken(c,{prompt:"Say the sentence."},r=>{ const g=words(r.text),b=best(g); return {score:mkErrScore(b.err,b.e.length),flu:mkFluency(r,g.length),pro:r.text?mkPron(r,b.hit/b.e.length):0}; },aud);
+    mkStatus(c,"type","Tap the phrases in order."); mkTypedReplay(c,aud,"Tap the phrases in order.");
     let picked=[],sent=false; const line=c.querySelector("[data-line]"),pool=c.querySelector("[data-pool]");
     const draw=()=>{ line.innerHTML="";pool.innerHTML="";
       picked.forEach((k,pi)=>{const b=document.createElement("button");b.className="tile";b.textContent=chunks[k];b.onclick=()=>{picked.splice(pi,1);draw()};line.append(b);});
       chunks.forEach((t,k)=>{ if(picked.includes(k))return; const b=document.createElement("button");b.className="tile";b.textContent=t;b.onclick=()=>{picked.push(k);draw()};pool.append(b);}); };
     draw();
     const send=()=>{ if(sent)return; sent=true; const said=picked.map(k=>chunks[k]).join(" "); const b=best(words(said)); mkDone({said,mode:"typed",score:picked.length===chunks.length&&b.err===0?1:0}); };
-    c.querySelector("[data-send]").onclick=send; c.querySelector("[data-clear]").onclick=()=>{picked=[];draw()};
+    c.querySelector("[data-send]").onclick=send; c.querySelector("[data-clear]").onclick=()=>{picked=[];draw()}; T.skip=send;
     mkCountdown(c,20,send);
   };
-  if(!NOTTS_SHOW(c,chunks.join("  …  "),go)) mkSay(chunks.map(t=>({t,gap:550})),go);
+  if(!NOTTS_SHOW(c,chunks.join("  …  "),go)) mkSay(aud,go);
  },
  conv(i){
   const cv=CONV[i];
   const right=v=>{ const w=words(v); return w.length&&cv.k.every(g=>g.some(k=>w.some(x=>x.startsWith(k))))?1:0; };
-  const c=mkStage(`<div class="mk-status" data-st></div><p class="serif" data-noaudio hidden></p>${T.mic?`<p class="heard"></p>`:`<input class="textin" data-in disabled type="text" autocomplete="off" placeholder="Type a short answer">${CD}`}`);
-  mkStatus(c,"listen","Listen to the conversation and the question");
+  const c=mkStage(T.mic?"":TXT_IN("Type a short answer",true));
+  mkStatus(c,"listen","Please listen.");
   const aud=[...cv.l.map((t,n)=>({t,v:n%2})),{t:cv.q,v:0,gap:900}];
   const go=()=>{
-    if(T.mic) mkSpoken(c,{max:10000},r=>({score:right(r.text)}),aud);
-    else { mkStatus(c,"","Type your answer"); mkTypedReplay(c,aud,"Type your answer"); mkTyped(c,15,v=>({score:right(v)})); }
+    if(T.mic) mkSpoken(c,{max:10000,prompt:"Answer the question."},r=>({score:right(r.text)}),aud);
+    else { mkStatus(c,"type","Type a short answer, then press Enter."); mkTypedReplay(c,aud,"Type a short answer, then press Enter."); mkTyped(c,15,v=>({score:right(v)})); }
   };
-  const all=[...cv.l,"Question: "+cv.q].join("  ");
-  if(!NOTTS_SHOW(c,all,go)) mkSay(aud,go);
+  if(!NOTTS_SHOW(c,[...cv.l,"Question: "+cv.q].join("  "),go)) mkSay(aud,go);
  },
  fib(i){
   const [s,acc]=FIB[i], parts=s.split("___");
-  const c=mkStage(`<div class="mk-status" data-st></div><p class="serif">${esc(parts[0])}<input class="blank" data-in type="text" autocomplete="off" spellcheck="false" autocapitalize="off" aria-label="Missing word">${esc(parts[1]||"")}</p>${CD}`);
-  mkStatus(c,"","Type the missing word, then press Enter");
+  const c=mkStage(`<div class="vt-sheet">${esc(parts[0])}<input class="blank" data-in type="text" autocomplete="off" spellcheck="false" autocapitalize="off" aria-label="Missing word">${esc(parts[1]||"")}</div>`,{panel:false});
+  mkStatus(c,"read","Type one word that fits the sentence, then press Enter.");
   mkTyped(c,25,v=>({score:acc.some(a=>same(a,v))?1:0}));
  },
  dict(i){
   const txt=DICT[i], exp=words(txt);
-  const c=mkStage(`<div class="mk-status" data-st></div><p class="serif" data-noaudio hidden></p><input class="textin" data-in disabled type="text" autocomplete="off" spellcheck="false" placeholder="Type exactly what you hear">${CD}`);
-  mkStatus(c,"listen","Listen");
-  const go=()=>{ mkStatus(c,"","Type the sentence, then press Enter"); mkTypedReplay(c,[{t:txt}],"Type the sentence, then press Enter"); mkTyped(c,25,v=>({score:mkErrScore(mkErrors(exp,words(v)).err,exp.length)})); };
+  const c=mkStage(TXT_IN("Type exactly what you hear"));
+  mkStatus(c,"listen","Please listen.");
+  const go=()=>{ mkStatus(c,"type","Type the sentence, then press Enter."); mkTypedReplay(c,[{t:txt}],"Type the sentence, then press Enter."); mkTyped(c,25,v=>({score:mkErrScore(mkErrors(exp,words(v)).err,exp.length)})); };
   if(!NOTTS_SHOW(c,txt,go)) mkSay([{t:txt}],go);
  },
  pass(i){
   const p=PASS[i];
-  const c=mkStage(`<div class="mk-status" data-st></div><div data-ph1><div class="passage serif">${esc(p.p)}</div></div><div data-ph2 hidden><textarea class="textin" data-in disabled placeholder="Rewrite the passage in your own words"></textarea><div class="btns" style="margin-top:8px"><button class="primary" data-send>Submit</button></div></div>${CD}`);
-  mkStatus(c,"listen","Read the passage");
-  mkCountdown(c,30,()=>{
+  const c=mkStage(`<div class="vt-sheet" data-ph1><b>${esc(p.t.split(" – ")[0])}</b><br>${esc(p.p)}</div><div data-ph2 hidden><textarea class="vt-input vt-ta" data-in disabled placeholder="Rewrite the passage in your own words"></textarea><div class="vt-row"><span class="vt-wc" data-wc>0 words</span><button class="vt-small primary" data-send>Submit</button></div></div>`,{panel:false});
+  mkStatus(c,"read","Read the paragraph. It will disappear in 30 seconds.");
+  const write=()=>{ clearTimers();
     c.querySelector("[data-ph1]").hidden=true; c.querySelector("[data-ph2]").hidden=false;
-    mkStatus(c,"","Rewrite the passage");
+    mkStatus(c,"read","Rewrite the paragraph in your own words.");
+    const ta=c.querySelector("[data-in]"), wc=c.querySelector("[data-wc]"); ta.oninput=()=>{ const n=words(ta.value).length; wc.textContent=n+(n===1?" word":" words"); };
     mkTyped(c,90,v=>{ const r=mkPassage(p,v); return {score:r.score,detail:{cov:r.cov,order:r.order,mech:r.mech}}; },{multiline:true});
-  });
+  };
+  T.skip=write;
+  mkCountdown(c,30,write);
  }
 };
 
@@ -1566,7 +1722,12 @@ function mkFinish(){
   const att={date:Date.now(),len:T.len,mic:T.mic,res:T.res};
   att.scores=mkCompute(att.res,att.mic);
   const hist=mkLoad(MK_HIST,[]); hist.unshift({...att,res:att.res.map(({audio,...r})=>r)}); mkSave(MK_HIST,hist.slice(0,10));
-  mockAbort(); mkView.report=att; render(); window.scrollTo(0,0);
+  clearTimers(); if(hasTTS)speechSynthesis.cancel(); mkView.report=att;
+  const w=vtScreen(`<h1 class="vt-h1">You have completed the test</h1>
+  <div class="vt-band">Your answers have been scored. Thank you.</div>
+  <p class="vt-meta">${att.res.length} questions answered in ${T.parts.length} parts.</p>
+  <div class="vt-ctl"><span class="grow"></span>${vtNext("See my score report")}</div>`);
+  w.querySelector("#vtNext").onclick=()=>{ mockAbort(); render(); window.scrollTo(0,0); };
 }
 
 /* ---------- report ---------- */
