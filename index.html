@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Versant Mock Test</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -251,12 +252,17 @@ details.rev summary{cursor:pointer;font-weight:600}
 .vl-add .vl-av{background:#fff;color:var(--navy2);border:2px dashed var(--navy2)}
 .vl-nm{font-weight:700;font-size:1rem;color:var(--navy)}
 .vl-danger{border-color:#B33A3A;background:#FBEFEF}.vl-danger small{color:#B33A3A;font-weight:600}
-.vl-form{max-width:360px}
+.vl-form{max-width:400px}
 .vl-form .vt-lab{display:block}
 .vl-pin{letter-spacing:.5em;font-size:1.3rem;max-width:180px}
 .vl-pin::placeholder{letter-spacing:normal;font-size:.9rem}
 .vl-opt{color:var(--sub);font-weight:400}
 .vl-err{color:#B33A3A;font-size:.9rem;margin:8px 0 0}
+.vl-switch{margin-top:22px;font-size:.95rem}
+.vl-link{background:none;border:0;padding:0;color:var(--navy2);font:inherit;font-weight:700;text-decoration:underline;cursor:pointer}
+.vl-msg.bad{background:#F8E7E7;color:#B33A3A}
+#syncState.bad{color:var(--bad);font-weight:600}
+#vlGo:disabled{opacity:.5}
 .vl-msg{background:#E6F3EB;color:#2F7D4F;padding:8px 12px;border-radius:3px;margin:0 0 16px}
 #whoBtn b{font-weight:600}
 </style>
@@ -270,7 +276,7 @@ details.rev summary{cursor:pointer;font-weight:600}
         <label class="speed" id="voiceWrap">Voice <select id="voice" style="max-width:200px"></select></label>
         <label class="speed">Speed <select id="rate"><option value="0.75">Slow</option><option value="0.9" selected>Normal</option><option value="1.05">Fast</option></select></label>
         <button id="testVoice">Test voice</button>
-        <button id="whoBtn" hidden title="Sign out and switch person"><b></b> · Switch person</button>
+        <span class="speed" id="syncState" aria-live="polite"></span><button id="whoBtn" hidden title="Sign out"><b></b> · Sign out</button>
       </div>
     </div>
     <nav id="tabs" role="tablist" aria-label="Sections"></nav>
@@ -1049,7 +1055,7 @@ const SECS = [
 /* ---------- storage ---------- */
 const BASE_KEY="versant-practice-all-v1"; let KEY=BASE_KEY;
 let ST={}; try{ST=JSON.parse(localStorage.getItem(KEY)||"{}")||{}}catch(e){ST={}}
-const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(ST))}catch(e){}};
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(ST))}catch(e){} if(window.cloudQueue)window.cloudQueue();};
 function S(sec){ let s=ST[sec.id]; if(!s||!s.order||s.order.length!==sec.items.length){ s=ST[sec.id]={order:sec.items.map((_,i)=>i),pos:0,res:{},ans:{},wrongOnly:false}; } return s; }
 
 /* ---------- text helpers ---------- */
@@ -1345,7 +1351,7 @@ const MK_HIST="versant-mock-history", MK_USED="versant-mock-used";
 let PROFILE=null;   // the signed-in person; their data is stored under "<key>::<profile id>"
 const sk=k=>PROFILE?k+"::"+PROFILE.id:k;
 const mkLoad=(k,d)=>{try{return JSON.parse(localStorage.getItem(sk(k))||"null")??d}catch(e){return d}};
-const mkSave=(k,v)=>{try{localStorage.setItem(sk(k),JSON.stringify(v))}catch(e){}};
+let mkSave=(k,v)=>{try{localStorage.setItem(sk(k),JSON.stringify(v))}catch(e){}};
 
 /* Versant reports 20–80. Raw proportion → scale (monotone, steeper in the middle like an IRT curve). */
 const MK_PTS=[[0,20],[.2,26],[.4,36],[.6,47],[.75,58],[.9,69],[.98,79],[1,80]];
@@ -1843,119 +1849,163 @@ function mkReport(att){
   main.querySelector("#mkHome").onclick=()=>{ mkView.report=null; render(); window.scrollTo(0,0); };
 }
 
-/* ---------- profiles: each person signs in and sees only their own progress ---------- */
-const PKEY="versant-profiles", SKEY="versant-session";
-const pLoad=()=>{ try{ return JSON.parse(localStorage.getItem(PKEY)||"[]")||[]; }catch(e){ return []; } };
-const pSave=list=>{ try{ localStorage.setItem(PKEY,JSON.stringify(list)); }catch(e){} };
-async function pinHash(pin,id){
-  const txt="versant:"+id+":"+pin;
-  try{ const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(txt)); return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join(""); }
-  catch(e){ let h=5381; for(const ch of txt)h=((h<<5)+h+ch.charCodeAt(0))|0; return "d"+(h>>>0).toString(16); }
+/* ---------- accounts: sign in online, progress saved to your account ---------- */
+const SB_URL="https://wxkhevbqzaeffxhwgwsp.supabase.co", SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind4a2hldmJxemFlZmZ4aHdnd3NwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTExOTM5OTksImV4cCI6MjEwNjc2OTk5OX0.NyHLrJSIzgXAow12EJslH-CvNBau2p-ZfjWGdrXr7K0";
+const sb=window.supabase?window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}}):null;
+const SYNC_KEYS={progress:BASE_KEY,hist:MK_HIST,used:MK_USED};
+
+/* upload everything for this person, a moment after the last change */
+let syncTimer=null, syncBusy=false, syncAgain=false;
+function syncState(t,bad){ const el=document.getElementById("syncState"); if(el){ el.textContent=t; el.classList.toggle("bad",!!bad); } }
+function cloudQueue(){ if(!PROFILE||!sb)return; syncState("Saving…"); clearTimeout(syncTimer); syncTimer=setTimeout(cloudPush,1200); }
+window.cloudQueue=cloudQueue;
+async function cloudPush(){
+  if(!PROFILE||!sb)return;
+  if(syncBusy){ syncAgain=true; return; }
+  syncBusy=true;
+  const data={}; Object.entries(SYNC_KEYS).forEach(([k,base])=>{ try{ data[k]=JSON.parse(localStorage.getItem(base+"::"+PROFILE.id)||"null"); }catch(e){ data[k]=null; } });
+  const {error}=await sb.from("versant_user_data").upsert({user_id:PROFILE.id,data,updated_at:new Date().toISOString()});
+  syncBusy=false;
+  if(error) syncState("Not saved. Check your internet",true); else syncState("Saved");
+  if(syncAgain){ syncAgain=false; cloudPush(); }
 }
-const BASE_KEYS=["versant-practice-all-v1",MK_HIST,MK_USED];
-function pUse(p){
-  PROFILE=p;
-  KEY=BASE_KEY+"::"+p.id;
+document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="hidden"&&syncTimer){ clearTimeout(syncTimer); syncTimer=null; cloudPush(); } });
+/* every local save also goes to the account */
+const mkSaveLocal=mkSave;
+mkSave=(k,v)=>{ mkSaveLocal(k,v); cloudQueue(); };
+
+async function cloudPull(uid){
+  const {data,error}=await sb.from("versant_user_data").select("data").eq("user_id",uid).maybeSingle();
+  if(error) throw error;
+  const d=(data&&data.data)||{};
+  Object.entries(SYNC_KEYS).forEach(([k,base])=>{ try{ if(d[k]!=null)localStorage.setItem(base+"::"+uid,JSON.stringify(d[k])); else localStorage.removeItem(base+"::"+uid); }catch(e){} });
+}
+async function vlEnterUser(user){
+  vlShell(`<h1 class="vt-h1">Signing you in…</h1><div class="vt-band">Loading your scores and progress.</div>`);
+  try{ await cloudPull(user.id); }
+  catch(e){ return vlSignIn("We couldn’t load your progress. Check your internet connection and try again.",true); }
+  PROFILE={id:user.id,name:(user.user_metadata&&user.user_metadata.name)||user.email.split("@")[0],email:user.email};
+  KEY=BASE_KEY+"::"+PROFILE.id;
   try{ ST=JSON.parse(localStorage.getItem(KEY)||"{}")||{}; }catch(e){ ST={}; }
-  try{ sessionStorage.setItem(SKEY,p.id); }catch(e){}
   mkView={len:"full",report:null,quit:false,replay:false,record:false};
-  const who=document.getElementById("whoBtn"); if(who){ who.hidden=false; who.querySelector("b").textContent=p.name; }
+  const who=document.getElementById("whoBtn"); if(who){ who.hidden=false; who.querySelector("b").textContent=PROFILE.name; }
+  syncState("Saved");
+  vlClose(); current="mock"; drawTabs(); render(); window.scrollTo(0,0);
 }
-/* the first person to sign up keeps any progress saved before profiles existed */
-function pAdopt(id){
-  BASE_KEYS.forEach(k=>{ try{ const v=localStorage.getItem(k); if(v!=null&&localStorage.getItem(k+"::"+id)==null){ localStorage.setItem(k+"::"+id,v); localStorage.removeItem(k); } }catch(e){} });
-}
-function pLast(p){ try{ const h=JSON.parse(localStorage.getItem(MK_HIST+"::"+p.id)||"[]"); return h[0]?h[0].scores.overall:null; }catch(e){ return null; } }
 
 function vlShell(inner){
   let o=document.getElementById("vl");
   if(!o){ o=document.createElement("div"); o.id="vl"; document.body.append(o); }
-  o.innerHTML=`<div class="vt-top"><div class="vt-brand">${ICON.waves}<span>4 SKILLS PRACTICE</span></div><span class="vt-tag">Sign in</span></div>
+  o.innerHTML=`<div class="vt-top"><div class="vt-brand">${ICON.waves}<span>4 SKILLS PRACTICE</span></div><span class="vt-tag">Your account</span></div>
   <div class="vt-body"><div class="vt-wrap">${inner}</div></div>
-  <div class="vt-foot"><span>Profiles are saved in this browser on this Mac. The PIN keeps people out of each other’s results; it isn’t strong security.</span></div>`;
+  <div class="vt-foot"><span>Practice app modelled on the Versant 4 Skills Essential test. Not made by Pearson.</span></div>`;
   return o;
 }
 function vlClose(){ const o=document.getElementById("vl"); if(o)o.remove(); }
-const initial=n=>(n.trim()[0]||"?").toUpperCase();
+const vlField=(id,label,type,extra="")=>`<label class="vt-lab" for="${id}">${label}</label><input class="vt-input" id="${id}" type="${type}" ${extra}>`;
+function vlBusy(o,on,label){ const b=o.querySelector("#vlGo"); if(b){ b.disabled=on; b.querySelector("span").textContent=on?"Please wait…":label; } }
+const vlErr=(o,msg)=>{ const e=o.querySelector("#vlErr"); e.textContent=msg; e.hidden=false; };
+function vlNice(error){
+  const m=(error&&error.message)||"";
+  if(/invalid login/i.test(m)) return "That email and password don’t match. Check them and try again.";
+  if(/already registered|already exists/i.test(m)) return "There’s already an account with that email. Sign in instead.";
+  if(/password/i.test(m)&&/least|short|characters/i.test(m)) return "Use a password of at least 8 characters.";
+  if(/rate limit|too many/i.test(m)) return "Too many tries. Wait a minute and try again.";
+  if(/fetch|network/i.test(m)) return "Can’t reach the server. Check your internet connection.";
+  return m||"Something went wrong. Try again.";
+}
 
-function vlPick(msg){
-  const list=pLoad();
-  if(!list.length) return vlAdd(true);
-  const o=vlShell(`<h1 class="vt-h1">Who’s practising?</h1>
-  <div class="vt-band">Choose your name to see your own scores and progress.</div>
-  ${msg?`<p class="vl-msg">${esc(msg)}</p>`:""}
-  <div class="vl-grid">${list.map(p=>{ const l=pLast(p); return `<button class="vl-card" data-p="${p.id}"><span class="vl-av">${esc(initial(p.name))}</span><span class="vl-nm">${esc(p.name)}</span><small>${l!=null?`Last score ${l} / 80`:"No tests yet"}${p.pin?" · PIN":""}</small></button>`; }).join("")}
-    <button class="vl-card vl-add" id="vlAdd"><span class="vl-av">+</span><span class="vl-nm">Add a person</span><small>New profile</small></button></div>
-  <div class="vt-ctl"><button class="vt-small" id="vlManage">Remove a person</button><span class="grow"></span></div>`);
-  o.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>{ const p=list.find(x=>x.id===b.dataset.p); p.pin?vlPin(p):vlEnter(p); });
-  o.querySelector("#vlAdd").onclick=()=>vlAdd(false);
-  o.querySelector("#vlManage").onclick=vlRemove;
-  (o.querySelector("[data-p]")||o.querySelector("#vlAdd")).focus();
-}
-function vlPin(p,onOk,title){
-  const o=vlShell(`<h1 class="vt-h1">${title||"Hi, "+esc(p.name)}</h1>
-  <div class="vt-band">Enter your 4-digit PIN.</div>
-  <form id="vlForm" class="vl-form" autocomplete="off">
-    <label class="vt-lab" for="vlPin">PIN</label>
-    <input class="vt-input vl-pin" id="vlPin" inputmode="numeric" pattern="[0-9]*" maxlength="4" type="password" autocomplete="off">
-    <p class="vl-err" id="vlErr" hidden>That PIN isn’t right. Try again.</p>
-    <div class="vt-ctl"><button type="button" class="vt-small" id="vlBack">Back</button><span class="grow"></span>${vtNext("Sign in","vlGo")}</div>
-  </form>`);
-  const inp=o.querySelector("#vlPin"); inp.focus();
-  o.querySelector("#vlBack").onclick=()=>vlPick();
-  o.querySelector("#vlForm").onsubmit=async e=>{ e.preventDefault();
-    if(await pinHash(inp.value,p.id)===p.pin){ onOk?onOk():vlEnter(p); }
-    else{ o.querySelector("#vlErr").hidden=false; inp.value=""; inp.focus(); } };
-  inp.oninput=()=>{ inp.value=inp.value.replace(/\D/g,""); if(inp.value.length===4)o.querySelector("#vlForm").requestSubmit(); };
-}
-function vlAdd(first){
-  const o=vlShell(`<h1 class="vt-h1">${first?"Create your profile":"Add a person"}</h1>
-  <div class="vt-band">${first?"Profiles keep each person’s scores separate. You can add more people later.":"Each person gets their own scores, progress and test history."}</div>
-  <form id="vlForm" class="vl-form" autocomplete="off">
-    <label class="vt-lab" for="vlName">Name</label>
-    <input class="vt-input" id="vlName" maxlength="30" placeholder="For example, Ramitha" autocomplete="off">
-    <label class="vt-lab" for="vlNewPin" style="margin-top:14px">4-digit PIN <span class="vl-opt">(optional)</span></label>
-    <input class="vt-input vl-pin" id="vlNewPin" inputmode="numeric" pattern="[0-9]*" maxlength="4" type="password" autocomplete="off" placeholder="No PIN">
+function vlSignIn(msg,bad){
+  const o=vlShell(`<h1 class="vt-h1">Sign in</h1>
+  <div class="vt-band">Sign in to practise and see your scores on any device: your phone, laptop or tablet.</div>
+  ${msg?`<p class="vl-msg ${bad?"bad":""}">${esc(msg)}</p>`:""}
+  <form id="vlForm" class="vl-form">
+    ${vlField("vlEmail","Email","email",'autocomplete="email" required')}
+    <div style="height:12px"></div>
+    ${vlField("vlPass","Password","password",'autocomplete="current-password" required')}
     <p class="vl-err" id="vlErr" hidden></p>
-    <div class="vt-ctl">${first?"":`<button type="button" class="vt-small" id="vlBack">Back</button>`}<span class="grow"></span>${vtNext("Create profile","vlGo")}</div>
+    <div class="vt-ctl"><button type="button" class="vt-small" id="vlForgot">Forgot password?</button><span class="grow"></span>${vtNext("Sign in","vlGo")}</div>
+  </form>
+  <p class="vl-switch">New here? <button class="vl-link" id="vlNew">Create an account</button></p>`);
+  o.querySelector("#vlEmail").focus();
+  o.querySelector("#vlNew").onclick=()=>vlSignUp();
+  o.querySelector("#vlForgot").onclick=()=>vlForgot(o.querySelector("#vlEmail").value);
+  o.querySelector("#vlForm").onsubmit=async e=>{ e.preventDefault(); vlBusy(o,true,"Sign in");
+    const {data,error}=await sb.auth.signInWithPassword({email:o.querySelector("#vlEmail").value.trim(),password:o.querySelector("#vlPass").value});
+    vlBusy(o,false,"Sign in"); if(error) return vlErr(o,vlNice(error)); vlEnterUser(data.user); };
+}
+function vlSignUp(){
+  const o=vlShell(`<h1 class="vt-h1">Create an account</h1>
+  <div class="vt-band">Each person gets their own account, so scores and progress stay separate.</div>
+  <form id="vlForm" class="vl-form">
+    ${vlField("vlName","Your name","text",'autocomplete="given-name" maxlength="40" required')}
+    <div style="height:12px"></div>
+    ${vlField("vlEmail","Email","email",'autocomplete="email" required')}
+    <div style="height:12px"></div>
+    ${vlField("vlPass","Password (at least 8 characters)","password",'autocomplete="new-password" minlength="8" required')}
+    <p class="vl-err" id="vlErr" hidden></p>
+    <div class="vt-ctl"><button type="button" class="vt-small" id="vlBack">Back to sign in</button><span class="grow"></span>${vtNext("Create account","vlGo")}</div>
   </form>`);
-  const nm=o.querySelector("#vlName"), pn=o.querySelector("#vlNewPin"), err=o.querySelector("#vlErr"); nm.focus();
-  if(!first) o.querySelector("#vlBack").onclick=()=>vlPick();
-  pn.oninput=()=>{ pn.value=pn.value.replace(/\D/g,""); };
+  o.querySelector("#vlName").focus();
+  o.querySelector("#vlBack").onclick=()=>vlSignIn();
   o.querySelector("#vlForm").onsubmit=async e=>{ e.preventDefault();
-    const name=nm.value.trim(), list=pLoad();
-    const bad=!name?"Enter a name.":list.some(p=>p.name.toLowerCase()===name.toLowerCase())?"Someone already has that name. Add an initial to tell them apart.":pn.value&&pn.value.length!==4?"The PIN needs exactly 4 digits, or leave it empty.":"";
-    if(bad){ err.textContent=bad; err.hidden=false; return; }
-    const id="p"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
-    const p={id,name,pin:pn.value?await pinHash(pn.value,id):null,created:Date.now()};
-    if(!list.length) pAdopt(id);
-    list.push(p); pSave(list); vlEnter(p);
+    const name=o.querySelector("#vlName").value.trim(), email=o.querySelector("#vlEmail").value.trim(), password=o.querySelector("#vlPass").value;
+    if(password.length<8) return vlErr(o,"Use a password of at least 8 characters.");
+    vlBusy(o,true,"Create account");
+    const {data,error}=await sb.auth.signUp({email,password,options:{data:{name},emailRedirectTo:location.origin+location.pathname}});
+    vlBusy(o,false,"Create account");
+    if(error) return vlErr(o,vlNice(error));
+    if(data.session) vlEnterUser(data.user); else vlSignIn("Account created. Sign in to start.");
   };
 }
-function vlRemove(){
-  const list=pLoad();
-  const o=vlShell(`<h1 class="vt-h1">Remove a person</h1>
-  <div class="vt-band">This deletes their profile and all their scores from this Mac. It can’t be undone.</div>
-  <div class="vl-grid">${list.map(p=>`<button class="vl-card" data-p="${p.id}"><span class="vl-av">${esc(initial(p.name))}</span><span class="vl-nm">${esc(p.name)}</span><small data-s>Click to remove</small></button>`).join("")}</div>
-  <div class="vt-ctl"><button class="vt-small" id="vlBack">Done</button><span class="grow"></span></div>`);
-  o.querySelector("#vlBack").onclick=()=>vlPick();
-  o.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>{
-    const p=list.find(x=>x.id===b.dataset.p);
-    const kill=()=>{ BASE_KEYS.forEach(k=>{ try{localStorage.removeItem(k+"::"+p.id)}catch(e){} }); pSave(pLoad().filter(x=>x.id!==p.id));
-      if(PROFILE&&PROFILE.id===p.id){ PROFILE=null; try{sessionStorage.removeItem(SKEY)}catch(e){} } vlPick(`${p.name} was removed.`); };
-    if(!b.dataset.sure){ b.dataset.sure=1; b.classList.add("vl-danger"); b.querySelector("[data-s]").textContent="Click again to delete for good"; return; }
-    p.pin?vlPin(p,kill,"Enter "+esc(p.name)+"’s PIN to remove them"):kill();
-  });
+function vlForgot(email){
+  const o=vlShell(`<h1 class="vt-h1">Reset your password</h1>
+  <div class="vt-band">Enter your email and we’ll send you a link to choose a new password.</div>
+  <form id="vlForm" class="vl-form">
+    ${vlField("vlEmail","Email","email",`autocomplete="email" required value="${esc(email||"")}"`)}
+    <p class="vl-err" id="vlErr" hidden></p>
+    <div class="vt-ctl"><button type="button" class="vt-small" id="vlBack">Back to sign in</button><span class="grow"></span>${vtNext("Send link","vlGo")}</div>
+  </form>`);
+  o.querySelector("#vlEmail").focus();
+  o.querySelector("#vlBack").onclick=()=>vlSignIn();
+  o.querySelector("#vlForm").onsubmit=async e=>{ e.preventDefault(); vlBusy(o,true,"Send link");
+    const {error}=await sb.auth.resetPasswordForEmail(o.querySelector("#vlEmail").value.trim(),{redirectTo:location.origin+location.pathname});
+    vlBusy(o,false,"Send link"); if(error) return vlErr(o,vlNice(error));
+    vlSignIn("If that email has an account, a reset link is on its way. It can take a few minutes; check your spam folder too."); };
 }
-function vlEnter(p){ pUse(p); vlClose(); current="mock"; drawTabs(); render(); window.scrollTo(0,0); }
-function vlSignOut(){ mockAbort(); PROFILE=null; try{sessionStorage.removeItem(SKEY)}catch(e){} const w=document.getElementById("whoBtn"); if(w)w.hidden=true; vlPick(); }
+function vlNewPassword(){
+  const o=vlShell(`<h1 class="vt-h1">Choose a new password</h1>
+  <form id="vlForm" class="vl-form">
+    ${vlField("vlPass","New password (at least 8 characters)","password",'autocomplete="new-password" minlength="8" required')}
+    <p class="vl-err" id="vlErr" hidden></p>
+    <div class="vt-ctl"><span class="grow"></span>${vtNext("Save password","vlGo")}</div>
+  </form>`);
+  o.querySelector("#vlPass").focus();
+  o.querySelector("#vlForm").onsubmit=async e=>{ e.preventDefault(); vlBusy(o,true,"Save password");
+    const {data,error}=await sb.auth.updateUser({password:o.querySelector("#vlPass").value});
+    vlBusy(o,false,"Save password"); if(error) return vlErr(o,vlNice(error)); vlEnterUser(data.user); };
+}
+async function vlSignOut(){
+  mockAbort(); if(syncTimer){ clearTimeout(syncTimer); syncTimer=null; await cloudPush(); }
+  if(PROFILE) Object.values(SYNC_KEYS).forEach(base=>{ try{ localStorage.removeItem(base+"::"+PROFILE.id); }catch(e){} });
+  PROFILE=null; KEY=BASE_KEY; ST={};
+  const w=document.getElementById("whoBtn"); if(w)w.hidden=true;
+  if(sb) await sb.auth.signOut();
+  vlSignIn("You’re signed out.");
+}
 
-/* start: stay signed in for this browser tab, otherwise ask who is practising */
-(function(){
+/* iPhone Safari only speaks after a tap: unlock speech on the first tap anywhere */
+document.addEventListener("pointerdown",function unlock(){ try{ if(hasTTS){ const u=new SpeechSynthesisUtterance(" "); u.volume=0; speechSynthesis.speak(u); } }catch(e){} document.removeEventListener("pointerdown",unlock); },{once:true});
+
+/* start */
+(async function(){
   const who=document.getElementById("whoBtn"); if(who) who.onclick=vlSignOut;
-  let sid=null; try{ sid=sessionStorage.getItem(SKEY); }catch(e){}
-  const p=sid&&pLoad().find(x=>x.id===sid);
-  if(p) vlEnter(p); else vlPick();
+  if(!sb){ vlShell(`<h1 class="vt-h1">Can’t connect</h1><div class="vt-band">The sign-in service didn’t load. Check your internet connection, then reload this page.</div>`); return; }
+  let recovering=/type=recovery/.test(location.hash);
+  sb.auth.onAuthStateChange(ev=>{ if(ev==="PASSWORD_RECOVERY"){ recovering=true; vlNewPassword(); } });
+  const {data}=await sb.auth.getSession();
+  if(recovering) return vlNewPassword();
+  if(data.session) vlEnterUser(data.session.user); else vlSignIn();
 })();
 
 </script>
