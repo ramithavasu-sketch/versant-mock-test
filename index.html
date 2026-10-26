@@ -149,7 +149,7 @@ details.rev summary{cursor:pointer;font-weight:600}
 @media (max-width:560px){.mk-overall{grid-template-columns:1fr}.skill{grid-template-columns:84px 1fr 38px}.bands{margin-left:94px;margin-right:48px}.mk-big{font-size:3.2rem}}
 
 /* ---------- test screens: one fixed light look, like the real test ---------- */
-#vt{--navy:#22365F;--navy2:#2B4373;--slate:#454545;--band:#F2F2F2;--rule:#D6D6D6;--txt:#2A2A2A;--sub:#6B6B6B;--orange:#E8913A;
+#vt,#vl{--navy:#22365F;--navy2:#2B4373;--slate:#454545;--band:#F2F2F2;--rule:#D6D6D6;--txt:#2A2A2A;--sub:#6B6B6B;--orange:#E8913A;
   position:fixed;inset:0;z-index:50;background:#fff;color:var(--txt);display:flex;flex-direction:column;color-scheme:light;
   font-family:"Helvetica Neue",Helvetica,Arial,system-ui,sans-serif;font-size:15px;line-height:1.5;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 .vt-top{background:var(--navy);color:#fff;display:flex;justify-content:space-between;align-items:center;padding:10px 18px;gap:12px}
@@ -215,7 +215,7 @@ details.rev summary{cursor:pointer;font-weight:600}
 @media (max-width:640px){.vt-ex{grid-template-columns:1fr;gap:16px}.vt-title,.vt-right{font-size:1.15rem}.vt-panel{min-height:200px}.vt-sheet{padding:18px;font-size:1.05rem}.vt-brand span{font-size:.8rem}.vt-vol input{width:80px}}
 @media (prefers-reduced-motion:reduce){.vt-panel.speak .vt-icon{animation:none}}
 .intest header{display:none}
-#vt [hidden]{display:none!important}
+#vt [hidden],#vl [hidden]{display:none!important}
 
 /* mock home, same look as the test screens */
 .vt-home{--navy:#22365F;--navy2:#2B4373;--slate:#454545;--band:#F2F2F2;--rule:#D6D6D6;--txt:#2A2A2A;--sub:#6B6B6B;--orange:#E8913A;
@@ -239,6 +239,26 @@ details.rev summary{cursor:pointer;font-weight:600}
 .vt-pbtn small{color:var(--sub);font-weight:400}
 .vt-pbtn:hover{border-color:var(--navy2)}
 .vt-pbtn:focus-visible{outline:2px solid var(--navy2);outline-offset:2px}
+
+/* sign-in screens */
+#vl{z-index:60}
+.vl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px}
+.vl-card{display:flex;flex-direction:column;align-items:center;gap:6px;background:#fff;border:1px solid var(--rule);border-radius:4px;padding:20px 12px;cursor:pointer;color:var(--txt);font:inherit}
+.vl-card:hover{border-color:var(--navy2)}
+.vl-card:focus-visible{outline:2px solid var(--navy2);outline-offset:2px}
+.vl-card small{color:var(--sub);font-size:.8rem;text-align:center}
+.vl-av{width:56px;height:56px;border-radius:50%;background:var(--navy2);color:#fff;display:grid;place-items:center;font-size:1.5rem;font-weight:700}
+.vl-add .vl-av{background:#fff;color:var(--navy2);border:2px dashed var(--navy2)}
+.vl-nm{font-weight:700;font-size:1rem;color:var(--navy)}
+.vl-danger{border-color:#B33A3A;background:#FBEFEF}.vl-danger small{color:#B33A3A;font-weight:600}
+.vl-form{max-width:360px}
+.vl-form .vt-lab{display:block}
+.vl-pin{letter-spacing:.5em;font-size:1.3rem;max-width:180px}
+.vl-pin::placeholder{letter-spacing:normal;font-size:.9rem}
+.vl-opt{color:var(--sub);font-weight:400}
+.vl-err{color:#B33A3A;font-size:.9rem;margin:8px 0 0}
+.vl-msg{background:#E6F3EB;color:#2F7D4F;padding:8px 12px;border-radius:3px;margin:0 0 16px}
+#whoBtn b{font-weight:600}
 </style>
 </head>
 <body>
@@ -250,6 +270,7 @@ details.rev summary{cursor:pointer;font-weight:600}
         <label class="speed" id="voiceWrap">Voice <select id="voice" style="max-width:200px"></select></label>
         <label class="speed">Speed <select id="rate"><option value="0.75">Slow</option><option value="0.9" selected>Normal</option><option value="1.05">Fast</option></select></label>
         <button id="testVoice">Test voice</button>
+        <button id="whoBtn" hidden title="Sign out and switch person"><b></b> · Switch person</button>
       </div>
     </div>
     <nav id="tabs" role="tablist" aria-label="Sections"></nav>
@@ -1026,7 +1047,7 @@ const SECS = [
 ];
 
 /* ---------- storage ---------- */
-const KEY="versant-practice-all-v1";
+const BASE_KEY="versant-practice-all-v1"; let KEY=BASE_KEY;
 let ST={}; try{ST=JSON.parse(localStorage.getItem(KEY)||"{}")||{}}catch(e){ST={}}
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(ST))}catch(e){}};
 function S(sec){ let s=ST[sec.id]; if(!s||!s.order||s.order.length!==sec.items.length){ s=ST[sec.id]={order:sec.items.map((_,i)=>i),pos:0,res:{},ans:{},wrongOnly:false}; } return s; }
@@ -1321,8 +1342,10 @@ const MK_BLUEPRINT=[
 ];
 const MK_POOL={repeat:REPEAT,builds:BUILDS,conv:CONV,fib:FIB,dict:DICT,pass:PASS};
 const MK_HIST="versant-mock-history", MK_USED="versant-mock-used";
-const mkLoad=(k,d)=>{try{return JSON.parse(localStorage.getItem(k)||"null")??d}catch(e){return d}};
-const mkSave=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+let PROFILE=null;   // the signed-in person; their data is stored under "<key>::<profile id>"
+const sk=k=>PROFILE?k+"::"+PROFILE.id:k;
+const mkLoad=(k,d)=>{try{return JSON.parse(localStorage.getItem(sk(k))||"null")??d}catch(e){return d}};
+const mkSave=(k,v)=>{try{localStorage.setItem(sk(k),JSON.stringify(v))}catch(e){}};
 
 /* Versant reports 20–80. Raw proportion → scale (monotone, steeper in the middle like an IRT curve). */
 const MK_PTS=[[0,20],[.2,26],[.4,36],[.6,47],[.75,58],[.9,69],[.98,79],[1,80]];
@@ -1820,8 +1843,121 @@ function mkReport(att){
   main.querySelector("#mkHome").onclick=()=>{ mkView.report=null; render(); window.scrollTo(0,0); };
 }
 
-/* open on the mock test */
-current="mock"; drawTabs(); render();
+/* ---------- profiles: each person signs in and sees only their own progress ---------- */
+const PKEY="versant-profiles", SKEY="versant-session";
+const pLoad=()=>{ try{ return JSON.parse(localStorage.getItem(PKEY)||"[]")||[]; }catch(e){ return []; } };
+const pSave=list=>{ try{ localStorage.setItem(PKEY,JSON.stringify(list)); }catch(e){} };
+async function pinHash(pin,id){
+  const txt="versant:"+id+":"+pin;
+  try{ const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(txt)); return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join(""); }
+  catch(e){ let h=5381; for(const ch of txt)h=((h<<5)+h+ch.charCodeAt(0))|0; return "d"+(h>>>0).toString(16); }
+}
+const BASE_KEYS=["versant-practice-all-v1",MK_HIST,MK_USED];
+function pUse(p){
+  PROFILE=p;
+  KEY=BASE_KEY+"::"+p.id;
+  try{ ST=JSON.parse(localStorage.getItem(KEY)||"{}")||{}; }catch(e){ ST={}; }
+  try{ sessionStorage.setItem(SKEY,p.id); }catch(e){}
+  mkView={len:"full",report:null,quit:false,replay:false,record:false};
+  const who=document.getElementById("whoBtn"); if(who){ who.hidden=false; who.querySelector("b").textContent=p.name; }
+}
+/* the first person to sign up keeps any progress saved before profiles existed */
+function pAdopt(id){
+  BASE_KEYS.forEach(k=>{ try{ const v=localStorage.getItem(k); if(v!=null&&localStorage.getItem(k+"::"+id)==null){ localStorage.setItem(k+"::"+id,v); localStorage.removeItem(k); } }catch(e){} });
+}
+function pLast(p){ try{ const h=JSON.parse(localStorage.getItem(MK_HIST+"::"+p.id)||"[]"); return h[0]?h[0].scores.overall:null; }catch(e){ return null; } }
+
+function vlShell(inner){
+  let o=document.getElementById("vl");
+  if(!o){ o=document.createElement("div"); o.id="vl"; document.body.append(o); }
+  o.innerHTML=`<div class="vt-top"><div class="vt-brand">${ICON.waves}<span>4 SKILLS PRACTICE</span></div><span class="vt-tag">Sign in</span></div>
+  <div class="vt-body"><div class="vt-wrap">${inner}</div></div>
+  <div class="vt-foot"><span>Profiles are saved in this browser on this Mac. The PIN keeps people out of each other’s results; it isn’t strong security.</span></div>`;
+  return o;
+}
+function vlClose(){ const o=document.getElementById("vl"); if(o)o.remove(); }
+const initial=n=>(n.trim()[0]||"?").toUpperCase();
+
+function vlPick(msg){
+  const list=pLoad();
+  if(!list.length) return vlAdd(true);
+  const o=vlShell(`<h1 class="vt-h1">Who’s practising?</h1>
+  <div class="vt-band">Choose your name to see your own scores and progress.</div>
+  ${msg?`<p class="vl-msg">${esc(msg)}</p>`:""}
+  <div class="vl-grid">${list.map(p=>{ const l=pLast(p); return `<button class="vl-card" data-p="${p.id}"><span class="vl-av">${esc(initial(p.name))}</span><span class="vl-nm">${esc(p.name)}</span><small>${l!=null?`Last score ${l} / 80`:"No tests yet"}${p.pin?" · PIN":""}</small></button>`; }).join("")}
+    <button class="vl-card vl-add" id="vlAdd"><span class="vl-av">+</span><span class="vl-nm">Add a person</span><small>New profile</small></button></div>
+  <div class="vt-ctl"><button class="vt-small" id="vlManage">Remove a person</button><span class="grow"></span></div>`);
+  o.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>{ const p=list.find(x=>x.id===b.dataset.p); p.pin?vlPin(p):vlEnter(p); });
+  o.querySelector("#vlAdd").onclick=()=>vlAdd(false);
+  o.querySelector("#vlManage").onclick=vlRemove;
+  (o.querySelector("[data-p]")||o.querySelector("#vlAdd")).focus();
+}
+function vlPin(p,onOk,title){
+  const o=vlShell(`<h1 class="vt-h1">${title||"Hi, "+esc(p.name)}</h1>
+  <div class="vt-band">Enter your 4-digit PIN.</div>
+  <form id="vlForm" class="vl-form" autocomplete="off">
+    <label class="vt-lab" for="vlPin">PIN</label>
+    <input class="vt-input vl-pin" id="vlPin" inputmode="numeric" pattern="[0-9]*" maxlength="4" type="password" autocomplete="off">
+    <p class="vl-err" id="vlErr" hidden>That PIN isn’t right. Try again.</p>
+    <div class="vt-ctl"><button type="button" class="vt-small" id="vlBack">Back</button><span class="grow"></span>${vtNext("Sign in","vlGo")}</div>
+  </form>`);
+  const inp=o.querySelector("#vlPin"); inp.focus();
+  o.querySelector("#vlBack").onclick=()=>vlPick();
+  o.querySelector("#vlForm").onsubmit=async e=>{ e.preventDefault();
+    if(await pinHash(inp.value,p.id)===p.pin){ onOk?onOk():vlEnter(p); }
+    else{ o.querySelector("#vlErr").hidden=false; inp.value=""; inp.focus(); } };
+  inp.oninput=()=>{ inp.value=inp.value.replace(/\D/g,""); if(inp.value.length===4)o.querySelector("#vlForm").requestSubmit(); };
+}
+function vlAdd(first){
+  const o=vlShell(`<h1 class="vt-h1">${first?"Create your profile":"Add a person"}</h1>
+  <div class="vt-band">${first?"Profiles keep each person’s scores separate. You can add more people later.":"Each person gets their own scores, progress and test history."}</div>
+  <form id="vlForm" class="vl-form" autocomplete="off">
+    <label class="vt-lab" for="vlName">Name</label>
+    <input class="vt-input" id="vlName" maxlength="30" placeholder="For example, Ramitha" autocomplete="off">
+    <label class="vt-lab" for="vlNewPin" style="margin-top:14px">4-digit PIN <span class="vl-opt">(optional)</span></label>
+    <input class="vt-input vl-pin" id="vlNewPin" inputmode="numeric" pattern="[0-9]*" maxlength="4" type="password" autocomplete="off" placeholder="No PIN">
+    <p class="vl-err" id="vlErr" hidden></p>
+    <div class="vt-ctl">${first?"":`<button type="button" class="vt-small" id="vlBack">Back</button>`}<span class="grow"></span>${vtNext("Create profile","vlGo")}</div>
+  </form>`);
+  const nm=o.querySelector("#vlName"), pn=o.querySelector("#vlNewPin"), err=o.querySelector("#vlErr"); nm.focus();
+  if(!first) o.querySelector("#vlBack").onclick=()=>vlPick();
+  pn.oninput=()=>{ pn.value=pn.value.replace(/\D/g,""); };
+  o.querySelector("#vlForm").onsubmit=async e=>{ e.preventDefault();
+    const name=nm.value.trim(), list=pLoad();
+    const bad=!name?"Enter a name.":list.some(p=>p.name.toLowerCase()===name.toLowerCase())?"Someone already has that name. Add an initial to tell them apart.":pn.value&&pn.value.length!==4?"The PIN needs exactly 4 digits, or leave it empty.":"";
+    if(bad){ err.textContent=bad; err.hidden=false; return; }
+    const id="p"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+    const p={id,name,pin:pn.value?await pinHash(pn.value,id):null,created:Date.now()};
+    if(!list.length) pAdopt(id);
+    list.push(p); pSave(list); vlEnter(p);
+  };
+}
+function vlRemove(){
+  const list=pLoad();
+  const o=vlShell(`<h1 class="vt-h1">Remove a person</h1>
+  <div class="vt-band">This deletes their profile and all their scores from this Mac. It can’t be undone.</div>
+  <div class="vl-grid">${list.map(p=>`<button class="vl-card" data-p="${p.id}"><span class="vl-av">${esc(initial(p.name))}</span><span class="vl-nm">${esc(p.name)}</span><small data-s>Click to remove</small></button>`).join("")}</div>
+  <div class="vt-ctl"><button class="vt-small" id="vlBack">Done</button><span class="grow"></span></div>`);
+  o.querySelector("#vlBack").onclick=()=>vlPick();
+  o.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>{
+    const p=list.find(x=>x.id===b.dataset.p);
+    const kill=()=>{ BASE_KEYS.forEach(k=>{ try{localStorage.removeItem(k+"::"+p.id)}catch(e){} }); pSave(pLoad().filter(x=>x.id!==p.id));
+      if(PROFILE&&PROFILE.id===p.id){ PROFILE=null; try{sessionStorage.removeItem(SKEY)}catch(e){} } vlPick(`${p.name} was removed.`); };
+    if(!b.dataset.sure){ b.dataset.sure=1; b.classList.add("vl-danger"); b.querySelector("[data-s]").textContent="Click again to delete for good"; return; }
+    p.pin?vlPin(p,kill,"Enter "+esc(p.name)+"’s PIN to remove them"):kill();
+  });
+}
+function vlEnter(p){ pUse(p); vlClose(); current="mock"; drawTabs(); render(); window.scrollTo(0,0); }
+function vlSignOut(){ mockAbort(); PROFILE=null; try{sessionStorage.removeItem(SKEY)}catch(e){} const w=document.getElementById("whoBtn"); if(w)w.hidden=true; vlPick(); }
+
+/* start: stay signed in for this browser tab, otherwise ask who is practising */
+(function(){
+  const who=document.getElementById("whoBtn"); if(who) who.onclick=vlSignOut;
+  let sid=null; try{ sid=sessionStorage.getItem(SKEY); }catch(e){}
+  const p=sid&&pLoad().find(x=>x.id===sid);
+  if(p) vlEnter(p); else vlPick();
+})();
+
 </script>
 </body>
 </html>
