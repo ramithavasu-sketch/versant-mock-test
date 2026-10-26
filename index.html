@@ -216,6 +216,21 @@ details.rev summary{cursor:pointer;font-weight:600}
 @media (prefers-reduced-motion:reduce){.vt-panel.speak .vt-icon{animation:none}}
 .intest header{display:none}
 #vt [hidden]{display:none!important}
+
+/* mock home, same look as the test screens */
+.vt-home{--navy:#22365F;--navy2:#2B4373;--slate:#454545;--band:#F2F2F2;--rule:#D6D6D6;--txt:#2A2A2A;--sub:#6B6B6B;--orange:#E8913A;
+  background:#fff;color:var(--txt);border:1px solid var(--rule);font-family:"Helvetica Neue",Helvetica,Arial,system-ui,sans-serif;font-size:15px;color-scheme:light;overflow:hidden}
+.vt-home .vt-wrap{padding:22px 20px 26px}
+.vt-home .vt-top{border-radius:0}
+.vt-tag{font-size:.85rem;color:#C9D3E6}
+.vt-setup{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px;margin-top:22px;border-top:1px solid var(--rule);padding-top:18px}
+.vt-choice{display:flex;gap:8px;align-items:flex-start;margin:6px 0;font-size:.9rem;cursor:pointer}
+.vt-choice input{margin-top:3px;accent-color:var(--navy2)}
+.vt-note{color:var(--sub);font-size:.85rem;margin:4px 0 8px}
+.vt-home .heard{color:var(--sub);font-size:.85rem;font-style:italic;margin:6px 0 0}
+.vt-home .pill{background:var(--band);color:var(--sub)} .vt-home .pill.ok{background:#E6F3EB;color:#2F7D4F} .vt-home .pill.bad{background:#F8E7E7;color:#B33A3A}
+.vt-home .fb.bad{background:#F8E7E7;color:#B33A3A}
+@media (max-width:640px){.vt-home .hide-s{display:none}}
 </style>
 </head>
 <body>
@@ -1385,36 +1400,37 @@ function renderMock(){
   if(mkView.report) return mkReport(mkView.report);
   const hist=mkLoad(MK_HIST,[]);
   const n=k=>MK_BLUEPRINT.reduce((s,p)=>s+p[k],0);
-  main.innerHTML=`<h2>Mock test</h2>
-  <p class="tip">A timed test in the Versant English (4 skills) format. Audio plays once, you can’t go back, and each question moves on by itself when time runs out. You get a score report at the end.</p>
-  ${mkView.quit?`<div class="fb bad">Test stopped. Nothing was scored.</div>`:""}
-  <div class="card">
-    <h3>1. Choose the length</h3>
-    <div class="mk-opts">
-      <label class="mk-opt"><input type="radio" name="mklen" id="mklen-full" value="full" ${mkView.len==="full"?"checked":""}><span><b>Full test</b><small>${n("full")} questions, about 30 minutes</small></span></label>
-      <label class="mk-opt"><input type="radio" name="mklen" id="mklen-short" value="short" ${mkView.len==="short"?"checked":""}><span><b>Short test</b><small>${n("short")} questions, about 15 minutes</small></span></label>
-    </div>
-    <h3 style="margin-top:16px">2. Check your microphone</h3>
-    <p class="hint">Parts A to C are spoken. Use Chrome or Edge, allow the microphone, and wear headphones so the app doesn’t hear its own voice.</p>
-    <div class="mk-mic"><button id="mkMicBtn" ${SR?"":"disabled"}>Test microphone</button><span id="mkMicState">${!SR?`<span class="pill bad">This browser can’t recognise speech</span>`:mkMic===true?`<span class="pill ok">Microphone working</span>`:mkMic===false?`<span class="pill bad">Microphone not working</span>`:`<span class="pill">Not tested yet</span>`}</span></div>
-    <p class="heard" id="mkHeard"></p>
-    <p class="hint" id="mkNoMic" ${mkMic===true?"hidden":""}>Without a working microphone, Parts A–C are answered by typing and you won’t get a Speaking score.</p>
-    <h3 style="margin-top:16px">3. Practice options</h3>
-    <div class="mk-opts">
-      <label class="mk-opt"><input type="checkbox" id="mkOptReplay" ${mkView.replay?"checked":""}><span><b>Let me replay the audio</b><small>The real test plays each recording only once. Replays are counted in your report.</small></span></label>
-      <label class="mk-opt"><input type="checkbox" id="mkOptRecord" ${mkView.record?"checked":""} ${SR&&window.MediaRecorder?"":"disabled"}><span><b>Record my spoken answers</b><small>Listen back to each answer in the score report. Recordings stay on this device and are cleared when you close the page.</small></span></label>
-    </div>
-    <div class="btns" style="margin-top:14px"><button class="primary" id="mkStart">Start the test</button></div>
+  const SK={repeat:"Speaking, Listening",builds:"Speaking, Listening",conv:"Speaking, Listening",fib:"Reading, Writing",dict:"Listening, Writing",pass:"Reading, Writing"};
+  main.innerHTML=`<div class="vt-home">
+  <div class="vt-top"><div class="vt-brand">${ICON.waves}<span>4 SKILLS PRACTICE</span></div><span class="vt-tag">Mock test</span></div>
+  <div class="vt-wrap">
+  <h1 class="vt-h1">Versant 4 Skills Essential: practice test</h1>
+  <div class="vt-band">A timed test laid out like the real one. Audio plays once, you can’t go back, and each question moves on when time runs out. You get a score on the 20–80 scale at the end.</div>
+  ${mkView.quit?`<div class="fb bad" style="margin-bottom:16px">Test stopped. Nothing was scored.</div>`:""}
+  <table class="vt-table"><thead><tr><th>Part</th><th>Task</th><th class="hide-s">Time</th><th class="hide-s">Skills scored</th><th class="r">Questions</th></tr></thead><tbody>
+  ${MK_BLUEPRINT.map(p=>`<tr><td class="l">${p.letter}</td><td>${p.name}</td><td class="hide-s">${p.time}</td><td class="hide-s">${SK[p.id]}</td><td class="r" data-q="${p.id}">${p[mkView.len]}</td></tr>`).join("")}
+  </tbody></table>
+
+  <div class="vt-setup">
+    <div><div class="vt-lab">1. Test length</div>
+      <label class="vt-choice"><input type="radio" name="mklen" id="mklen-full" value="full" ${mkView.len==="full"?"checked":""}> <span><b>Full test</b> · ${n("full")} questions, about 30 min</span></label>
+      <label class="vt-choice"><input type="radio" name="mklen" id="mklen-short" value="short" ${mkView.len==="short"?"checked":""}> <span><b>Short test</b> · ${n("short")} questions, about 15 min</span></label></div>
+    <div><div class="vt-lab">2. Microphone</div>
+      <p class="vt-note">Parts A–C are spoken. Use Chrome, allow the microphone, and wear headphones.</p>
+      <div class="mk-mic"><button class="vt-small" id="mkMicBtn" ${SR?"":"disabled"}>Test microphone</button><span id="mkMicState">${!SR?`<span class="pill bad">This browser can’t recognise speech</span>`:mkMic===true?`<span class="pill ok">Microphone working</span>`:mkMic===false?`<span class="pill bad">Microphone not working</span>`:`<span class="pill">Not tested yet</span>`}</span></div>
+      <p class="heard" id="mkHeard"></p>
+      <p class="vt-note" id="mkNoMic" ${mkMic===true?"hidden":""}>Without a working microphone you type Parts A–C and get no Speaking score.</p></div>
+    <div><div class="vt-lab">3. Options</div>
+      <label class="vt-choice"><input type="checkbox" id="mkOptReplay" ${mkView.replay?"checked":""}> <span><b>Let me replay the audio</b> · not allowed in the real test; replays are counted</span></label>
+      <label class="vt-choice"><input type="checkbox" id="mkOptRecord" ${mkView.record?"checked":""} ${SR&&window.MediaRecorder?"":"disabled"}> <span><b>Record my spoken answers</b> · play them back in the report</span></label></div>
   </div>
-  <h3 style="margin-top:22px">What’s in the test</h3>
-  <div class="tblwrap"><table class="mk-table"><thead><tr><th>Part</th><th>Task</th><th>Questions</th><th>Time</th><th>Skills scored</th></tr></thead><tbody>
-  ${MK_BLUEPRINT.map(p=>`<tr><td class="n">${p.letter}</td><td>${p.name}</td><td class="n">${p.full} <span class="sub" style="color:var(--muted)">(short ${p.short})</span></td><td>${p.time}</td><td>${({repeat:"Speaking, Listening",builds:"Speaking, Listening",conv:"Speaking, Listening",fib:"Reading, Writing",dict:"Listening, Writing",pass:"Reading, Writing"})[p.id]}</td></tr>`).join("")}
-  </tbody></table></div>
+  <div class="vt-ctl"><span class="grow"></span><span class="vt-say">To start the test, please click Next.</span>${vtNext("Next","mkStart")}</div>
+  </div></div>
   ${hist.length?`<h3 style="margin-top:22px">Your past tests</h3><div class="hist">${hist.map((h,k)=>`<button data-h="${k}"><span>${new Date(h.date).toLocaleString([], {dateStyle:"medium",timeStyle:"short"})} · ${h.len==="full"?"Full":"Short"} test</span><span><b>${h.scores.overall}</b> / 80 · ${mkCefr(h.scores.overall)}</span></button>`).join("")}</div>`:""}
   <div class="note"><h3>How the score is worked out</h3>
   <p style="margin:6px 0 0">Pearson’s real scoring uses its own trained speech models and isn’t public, so no app can copy it exactly. This one uses the same format, timing and 20–80 scale, and scores the same things Versant looks at: how many words you get right in Repeats, Builds and Dictation; whether your Conversation and Sentence Completion answers are right; how much of the passage you keep, in the right order; and, for speaking, how quickly and smoothly you answer (fluency) and how clearly the recogniser understood you (pronunciation). Treat the result as a close estimate.</p></div>`;
   mkView.quit=false;
-  main.querySelectorAll('input[name="mklen"]').forEach(r=>r.onchange=()=>mkView.len=r.value);
+  main.querySelectorAll('input[name="mklen"]').forEach(r=>r.onchange=()=>{ mkView.len=r.value; MK_BLUEPRINT.forEach(p=>{ const c=main.querySelector(`[data-q="${p.id}"]`); if(c)c.textContent=p[mkView.len]; }); });
   main.querySelectorAll("[data-h]").forEach(b=>b.onclick=()=>{ mkView.report=hist[+b.dataset.h]; render(); window.scrollTo(0,0); });
   const micBtn=main.querySelector("#mkMicBtn");
   if(SR) micBtn.onclick=()=>{
@@ -1769,6 +1785,9 @@ function mkReport(att){
   main.querySelector("#mkAgain").onclick=()=>{ mkView.report=null; mkBegin(att.len); };
   main.querySelector("#mkHome").onclick=()=>{ mkView.report=null; render(); window.scrollTo(0,0); };
 }
+
+/* open on the mock test */
+current="mock"; drawTabs(); render();
 </script>
 </body>
 </html>
