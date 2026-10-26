@@ -176,7 +176,7 @@ details.rev summary{cursor:pointer;font-weight:600}
 .vt-panel.small p{margin:0;max-width:34ch}
 .vt-corner{position:absolute;right:10px;bottom:6px;opacity:.95;transform:scale(.45);transform-origin:bottom right}
 .vt-panel.speak .vt-icon{animation:pulse 1.4s infinite}
-.vt-panel .heard{color:#C9D3E6;font-size:.85rem;font-style:italic;margin:0;min-height:1.2em}
+.vt-panel .heard{color:#E4EAF5;font-size:1rem;font-style:italic;margin:0;min-height:1.4em;max-width:60ch}
 .vt-noaudio{font-size:1.1rem;margin:0;max-width:44ch}
 .vt-ex{display:grid;grid-template-columns:1fr 1fr;gap:28px}
 .vt-lab{font-weight:700;font-size:.9rem;margin-bottom:4px}
@@ -231,6 +231,14 @@ details.rev summary{cursor:pointer;font-weight:600}
 .vt-home .pill{background:var(--band);color:var(--sub)} .vt-home .pill.ok{background:#E6F3EB;color:#2F7D4F} .vt-home .pill.bad{background:#F8E7E7;color:#B33A3A}
 .vt-home .fb.bad{background:#F8E7E7;color:#B33A3A}
 @media (max-width:640px){.vt-home .hide-s{display:none}}
+
+.vt-parts{margin-top:22px;border-top:1px solid var(--rule);padding-top:16px}
+.vt-pbtns{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-top:8px}
+.vt-pbtn{display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;column-gap:10px;align-items:center;text-align:left;background:#fff;border:1px solid var(--rule);border-radius:3px;padding:10px 12px;color:var(--txt);font-size:.92rem;font-weight:600;cursor:pointer}
+.vt-pbtn .vt-letter{grid-row:span 2;width:30px;height:30px;font-size:1rem}
+.vt-pbtn small{color:var(--sub);font-weight:400}
+.vt-pbtn:hover{border-color:var(--navy2)}
+.vt-pbtn:focus-visible{outline:2px solid var(--navy2);outline-offset:2px}
 </style>
 </head>
 <body>
@@ -1091,19 +1099,17 @@ R.repeat=(i,el,api)=>{
   q("ok").onclick=()=>{q("txt").classList.remove("hidden");api.mark("ok")};
   q("bad").onclick=()=>{q("txt").classList.remove("hidden");api.mark("bad")};
   if(SR) q("rec").onclick=()=>{
-    let r; try{ r=new SR(); }catch(e){ q("out").innerHTML=`<div class="fb bad">The microphone can’t start here. Say the sentence aloud, then use Show sentence and mark yourself.</div>`; return; }
-    r.lang="en-US"; r.interimResults=false; r.maxAlternatives=1;
-    q("out").innerHTML=`<p class="hint">Listening… say the sentence now.</p>`;
-    r.onresult=e=>{
-      const said=e.results[0][0].transcript, d=diff(words(txt),words(said));
+    q("out").innerHTML=`<p class="hint">Listening… say the sentence now.</p><p class="serif" data-k="live"></p>`;
+    mkListen({silence:7000,max:20000,onText:t=>{ const l=q("live"); if(l)l.textContent=t; }},res=>{
+      if(res.err&&!res.text){ q("out").innerHTML=`<div class="fb bad">${res.err==="no-speech"||!res.err?"Nothing was heard.":"The microphone isn’t available ("+esc(res.err)+")."} Try again, or say it aloud and mark yourself.</div>`; return; }
+      if(!res.text){ q("out").innerHTML=`<div class="fb bad">Nothing was heard. Try again.</div>`; return; }
+      const said=res.text, d=diff(words(txt),words(said));
       const hit=d.filter(x=>x[0]==="same").length, acc=hit/words(txt).length;
       q("txt").classList.remove("hidden");
       const ok=acc>=0.9;
       q("out").innerHTML=`<div class="fb ${ok?"ok":"bad"}">${ok?"Well repeated":"Some words were missed"} (${Math.round(acc*100)}% of words matched)<span class="ans">You said: ${esc(said)}</span></div><p class="serif">${diffHTML(d)}</p>${LEGEND}`;
       api.mark(ok?"ok":"bad");
-    };
-    r.onerror=e=>{ q("out").innerHTML=`<div class="fb bad">The microphone isn’t available (${esc(e.error)}). Say the sentence aloud, then use Show sentence and mark yourself.</div>`; };
-    try{ r.start(); }catch(e){ r.onerror({error:"blocked"}); }
+    });
   };
 };
 
@@ -1249,11 +1255,12 @@ function renderSection(sec){
   main.innerHTML=`<h2>${sec.name}</h2><p class="tip">${sec.tip}</p>
   <div class="stats"><span class="ok"><b>${c.ok}</b> correct</span><span class="bad"><b>${c.bad}</b> wrong</span><span><b>${c.left}</b> not tried</span><span><b>${c.ok+c.bad?Math.round(c.ok/(c.ok+c.bad)*100)+"%":"–"}</b> score</span></div>
   <div class="progress"><span class="p-ok" style="width:${c.ok/c.total*100}%"></span><span class="p-bad" style="width:${c.bad/c.total*100}%"></span></div>
-  <div class="tools"><button data-a="wrong">${s.wrongOnly?"Show all questions":"Practise wrong ones only"}</button><button data-a="shuffle">Shuffle order</button><button data-a="reset">Start this section over</button></div>
+  <div class="tools"><button class="primary" data-a="astest">Take this part as a timed test</button><button data-a="wrong">${s.wrongOnly?"Show all questions":"Practise wrong ones only"}</button><button data-a="shuffle">Shuffle order</button><button data-a="reset">Start this section over</button></div>
   <div class="card" id="card"></div>
   <div class="nav"><button data-a="prev">Previous</button><button class="primary" data-a="next">Next</button>
   <label class="speed">Go to <select id="jump"></select></label></div>`;
   const card=main.querySelector("#card");
+  main.querySelector('[data-a="astest"]').onclick=()=>{ current="mock"; drawTabs(); mkView.report=null; render(); mkBegin(mkView.len,sec.id); };
   main.querySelector('[data-a="wrong"]').onclick=()=>{ s.wrongOnly=!s.wrongOnly; s.pos=0; save(); render(); };
   main.querySelector('[data-a="shuffle"]').onclick=()=>{ const a=s.order; for(let k=a.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[a[k],a[j]]=[a[j],a[k]]} s.pos=0; save(); render(); };
   main.querySelector('[data-a="reset"]').onclick=()=>{ if(!confirm(`Clear all your answers in ${sec.name}?`))return; delete ST[sec.id]; save(); render(); };
@@ -1366,18 +1373,23 @@ function mkSay(parts,done){
 }
 function mkListen(opt,cb){
   let r; try{ r=new SR(); }catch(e){ cb({text:"",err:"start"}); return; }
-  r.lang="en-US"; r.interimResults=true; r.continuous=false; r.maxAlternatives=1;
-  const t0=performance.now(); let tFirst=null,tLast=null,text="",conf=null,err=null,ended=false;
-  const fin=()=>{ if(ended)return; ended=true; T.rec=null;
-    cb({text:text.trim(),conf,err,latency:tFirst==null?null:(tFirst-t0)/1000,dur:tFirst==null?0:Math.max(0,(tLast-tFirst)/1000)}); };
+  // continuous: keep listening through short pauses so the whole answer is captured
+  r.lang="en-US"; r.interimResults=true; r.continuous=true; r.maxAlternatives=1;
+  const t0=performance.now(), tm=[]; let tFirst=null,tLast=null,text="",conf=null,err=null,ended=false,quiet=null;
+  const wait=(fn,ms)=>{ const id=setTimeout(fn,ms); tm.push(id); return id; };
+  const fin=()=>{ if(ended)return; ended=true; tm.forEach(clearTimeout); if(T.rec===r)T.rec=null;
+    cb({text:text.replace(/\s+/g," ").trim(),conf,err,latency:tFirst==null?null:(tFirst-t0)/1000,dur:tFirst==null?0:Math.max(0,(tLast-tFirst)/1000)}); };
+  const stop=()=>{ if(ended)return; try{r.stop()}catch(e){} wait(fin,1500); };
   r.onspeechstart=()=>{ if(tFirst==null)tFirst=performance.now(); };
-  r.onresult=e=>{ const now=performance.now(); if(tFirst==null)tFirst=now; tLast=now; let t="",c=[];
-    for(const res of e.results){ t+=res[0].transcript; if(res.isFinal&&res[0].confidence)c.push(res[0].confidence); }
-    text=t; if(c.length)conf=avg(c); opt.onText&&opt.onText(t); };
+  r.onresult=e=>{ const now=performance.now(); if(tFirst==null)tFirst=now; tLast=now; const t=[],c=[];
+    for(const res of e.results){ t.push(res[0].transcript.trim()); if(res.isFinal&&res[0].confidence)c.push(res[0].confidence); }
+    text=t.join(" "); if(c.length)conf=avg(c); opt.onText&&opt.onText(text.replace(/\s+/g," ").trim());
+    clearTimeout(quiet); quiet=wait(stop,opt.pause||1800); };
   r.onerror=e=>{ err=e.error; };
   r.onend=fin;
-  later(()=>{ if(tFirst==null&&!ended){ try{r.abort()}catch(e){} fin(); } },opt.silence||6000);
-  later(()=>{ if(!ended){ try{r.stop()}catch(e){} later(fin,1200); } },opt.max||15000);
+  wait(()=>{ if(tFirst==null&&!ended){ try{r.abort()}catch(e){} fin(); } },opt.silence||6000);
+  wait(stop,opt.max||15000);
+  r.stopNow=stop;
   T.rec=r; try{ r.start(); }catch(e){ err="start"; fin(); }
 }
 
@@ -1428,13 +1440,14 @@ function renderMock(){
       <label class="vt-choice"><input type="checkbox" id="mkOptReplay" ${mkView.replay?"checked":""}> <span><b>Let me replay the audio</b> · not allowed in the real test; replays are counted</span></label>
       <label class="vt-choice"><input type="checkbox" id="mkOptRecord" ${mkView.record?"checked":""} ${SR&&window.MediaRecorder?"":"disabled"}> <span><b>Record my spoken answers</b> · play them back in the report</span></label></div>
   </div>
-  <div class="vt-ctl"><span class="grow"></span><span class="vt-say">To start the test, please click Next.</span>${vtNext("Next","mkStart")}</div>
+  <div class="vt-ctl"><span class="grow"></span><span class="vt-say">To start the full test, please click Next.</span>${vtNext("Next","mkStart")}</div>
+  <div class="vt-parts"><div class="vt-lab">Or take one part on its own</div><div class="vt-pbtns">${MK_BLUEPRINT.map(p=>`<button class="vt-pbtn" data-only="${p.id}"><span class="vt-letter">${p.letter}</span>${p.name}<small>${p[mkView.len]} questions</small></button>`).join("")}</div></div>
   </div></div>
-  ${hist.length?`<h3 style="margin-top:22px">Your past tests</h3><div class="hist">${hist.map((h,k)=>`<button data-h="${k}"><span>${new Date(h.date).toLocaleString([], {dateStyle:"medium",timeStyle:"short"})} · ${h.len==="full"?"Full":"Short"} test</span><span><b>${h.scores.overall}</b> / 80 · ${mkCefr(h.scores.overall)}</span></button>`).join("")}</div>`:""}
+  ${hist.length?`<h3 style="margin-top:22px">Your past tests</h3><div class="hist">${hist.map((h,k)=>`<button data-h="${k}"><span>${new Date(h.date).toLocaleString([], {dateStyle:"medium",timeStyle:"short"})} · ${h.only?"Part "+(MK_BLUEPRINT.find(p=>p.id===h.only)||{}).letter+" · "+(MK_BLUEPRINT.find(p=>p.id===h.only)||{}).name:(h.len==="full"?"Full":"Short")+" test"}</span><span>${h.early?"ended early · ":""}<b>${h.scores.overall}</b> / 80 · ${mkCefr(h.scores.overall)}</span></button>`).join("")}</div>`:""}
   <div class="note"><h3>How the score is worked out</h3>
   <p style="margin:6px 0 0">Pearson’s real scoring uses its own trained speech models and isn’t public, so no app can copy it exactly. This one uses the same format, timing and 20–80 scale, and scores the same things Versant looks at: how many words you get right in Repeats, Builds and Dictation; whether your Conversation and Sentence Completion answers are right; how much of the passage you keep, in the right order; and, for speaking, how quickly and smoothly you answer (fluency) and how clearly the recogniser understood you (pronunciation). Treat the result as a close estimate.</p></div>`;
   mkView.quit=false;
-  main.querySelectorAll('input[name="mklen"]').forEach(r=>r.onchange=()=>{ mkView.len=r.value; MK_BLUEPRINT.forEach(p=>{ const c=main.querySelector(`[data-q="${p.id}"]`); if(c)c.textContent=p[mkView.len]; }); });
+  main.querySelectorAll('input[name="mklen"]').forEach(r=>r.onchange=()=>{ mkView.len=r.value; MK_BLUEPRINT.forEach(p=>{ const c=main.querySelector(`[data-q="${p.id}"]`); if(c)c.textContent=p[mkView.len]; const b=main.querySelector(`[data-only="${p.id}"] small`); if(b)b.textContent=p[mkView.len]+" questions"; }); });
   main.querySelectorAll("[data-h]").forEach(b=>b.onclick=()=>{ mkView.report=hist[+b.dataset.h]; render(); window.scrollTo(0,0); });
   const micBtn=main.querySelector("#mkMicBtn");
   if(SR) micBtn.onclick=()=>{
@@ -1450,6 +1463,7 @@ function renderMock(){
   main.querySelector("#mkOptReplay").onchange=e=>mkView.replay=e.target.checked;
   main.querySelector("#mkOptRecord").onchange=e=>mkView.record=e.target.checked;
   main.querySelector("#mkStart").onclick=()=>mkBegin(mkView.len);
+  main.querySelectorAll("[data-only]").forEach(b=>b.onclick=()=>mkBegin(mkView.len,b.dataset.only));
 }
 
 /* ---------- running the test ---------- */
@@ -1485,19 +1499,21 @@ function vtOverlay(){
   document.body.append(o);
   o.querySelector("#vtVol").oninput=e=>{ mkVol=+e.target.value; try{localStorage.setItem("versant-vol",mkVol)}catch(x){} };
   const q=o.querySelector("#vtQuit");
-  q.onclick=()=>{ if(q.dataset.sure){ mockAbort(); mkView.quit=true; render(); return; } q.dataset.sure=1; q.textContent="Click again to stop. Answers will be lost"; setTimeout(()=>{ if(q.isConnected){ delete q.dataset.sure; q.textContent="Stop test"; } },4000); };
+  q.onclick=()=>{ if(q.dataset.sure){ mkStopEarly(); return; } q.dataset.sure=1; q.textContent="Click again to end the test and see your score"; setTimeout(()=>{ if(q.isConnected){ delete q.dataset.sure; q.textContent="Stop test"; } },4000); };
   return o;
 }
 function vtScreen(html){ const w=vtOverlay().querySelector("#vtWrap"); w.innerHTML=html; vtOverlay().querySelector(".vt-body").scrollTop=0; return w; }
 const vtNext=(label="Next",id="vtNext")=>`<button class="vt-btn" id="${id}">${ICON.next}<span>${label}</span></button>`;
 const vtHead=(p,right)=>`<div class="vt-head"><div class="vt-title"><span class="vt-letter">${p.letter}</span>${p.name}</div><div class="vt-right">${right}</div></div>`;
 
-async function mkBegin(len){
-  const mic=mkMic===true&&!!SR;
+async function mkBegin(len,only){
+  // microphone is assumed to work unless the test on the start page said otherwise
+  let mic=mkMic!==false&&!!SR;
   let record=mic&&mkView.record&&!!window.MediaRecorder;
   // ask for the microphone once and keep it open for the whole test
-  if(mic&&navigator.mediaDevices){ try{ await mkGetStream(); }catch(e){ record=false; } } else record=false;
-  T={dead:false,timers:[],len,mic,record,replay:mkView.replay&&hasTTS,tok:0,itemReplays:0,skip:null,parts:MK_BLUEPRINT.map(p=>({...p,items:mkPick(p.id,p[len])})),pi:0,ii:0,res:[]};
+  if(mic&&navigator.mediaDevices){ try{ await mkGetStream(); }catch(e){ record=false; mic=false; } } else record=false;
+  const bp=only?MK_BLUEPRINT.filter(p=>p.id===only):MK_BLUEPRINT;
+  T={dead:false,timers:[],len,only:only||null,mic,record,replay:mkView.replay&&hasTTS,tok:0,itemReplays:0,skip:null,parts:bp.map(p=>({...p,items:mkPick(p.id,p[len])})),pi:0,ii:0,res:[]};
   document.body.classList.add("intest"); vtWelcome();
 }
 function vtWelcome(){
@@ -1506,7 +1522,7 @@ function vtWelcome(){
   <ul class="vt-req">
     <li><b>Headset with a microphone</b>Keep the microphone 3–5 cm from your mouth so the app hears only you.</li>
     <li><b>A quiet room</b>Even a fan can be noisy.</li>
-    <li><b>Enough time</b>About ${T.len==="full"?"30":"15"} minutes without breaks.</li>
+    <li><b>Enough time</b>${T.only?`About ${Math.max(2,Math.round(T.parts[0].items.length*({repeat:12,builds:14,conv:16,fib:25,dict:25,pass:120})[T.only]/60))} minutes for this part.`:`About ${T.len==="full"?"30":"15"} minutes without breaks.`}</li>
     <li><b>${T.mic?"Spoken answers are on":"Typing instead of speaking"}</b>${T.mic?"Parts A–C are answered by speaking.":"No working microphone, so Parts A–C are answered by typing and Speaking isn’t scored."}${T.replay?" Replay is on, which the real test doesn’t allow.":""}${T.record?" Your spoken answers will be recorded for the report.":""}</li>
   </ul>
   <div class="vt-ctl"><span class="grow"></span>${vtNext()}</div>`);
@@ -1573,7 +1589,8 @@ const CD=`<div class="cd"><span data-cd style="width:100%"></span></div><div cla
 function mkDone(r){
   const p=T.parts[T.pi]; clearTimers(); T.tok++; T.skip=null; try{T.rec&&T.rec.abort()}catch(e){} mkHush();
   T.res.push({sec:p.id,i:p.items[T.ii],replays:T.itemReplays,...r});
-  if(T.ii<p.items.length-1){ T.ii++; later(mkItem,700); }
+  const pause=r.mode==="voice"?1400:700;
+  if(T.ii<p.items.length-1){ T.ii++; later(mkItem,pause); }
   else if(T.pi<T.parts.length-1){ T.pi++; later(mkIntro,500); }
   else later(mkFinish,400);
 }
@@ -1601,12 +1618,12 @@ function mkSpoken(c,opt,score,parts){
   const listen=()=>{
     const tok=++T.tok, rec=T.record?mkRecStart():null;
     mkStatus(c,"speak",opt.prompt); heard.textContent="";
-    T.skip=()=>{ if(T.rec){ try{T.rec.stop()}catch(e){} } else mkDone({said:"",score:0,mode:"skip"}); };
+    T.skip=()=>{ if(T.rec&&T.rec.stopNow) T.rec.stopNow(); else mkDone({said:"",score:0,mode:"skip"}); };
     mkReplay(c,parts,()=>{ T.tok++; try{T.rec&&T.rec.abort()}catch(e){} rec&&rec.stop(); clearTimers(); },listen);
     mkListen({silence:opt.silence||6000,max:opt.max||15000,onText:t=>heard.textContent=t},r=>{
       if(T.dead||tok!==T.tok)return;
       if(r.err==="not-allowed"||r.err==="service-not-allowed"){ T.mic=false; }
-      c.querySelector("[data-rp]").hidden=true; heard.textContent="";
+      c.querySelector("[data-rp]").hidden=true; heard.textContent=r.text?"You said: “"+r.text+"”":"No answer heard";
       const res={said:r.text,mode:"voice",...score(r)};
       (rec?rec.stop():Promise.resolve(null)).then(url=>{ if(!T.dead&&tok===T.tok)mkDone(url?{...res,audio:url}:res); });
     });
@@ -1721,39 +1738,48 @@ function practiceRecorder(el){
 
 /* ---------- scoring the whole test ---------- */
 function mkCompute(res,mic){
-  const part={}; MK_BLUEPRINT.forEach(p=>part[p.id]=avg(res.filter(r=>r.sec===p.id).map(r=>r.score))??0);
-  const spoken=res.filter(r=>r.mode==="voice"&&(r.sec==="repeat"||r.sec==="builds"));
-  const flu=avg(spoken.map(r=>r.flu)), pro=avg(spoken.map(r=>r.pro));
+  const part={}; MK_BLUEPRINT.forEach(p=>part[p.id]=avg(res.filter(r=>r.sec===p.id).map(r=>r.score)));   // null = part not reached
+  const spoken=res.filter(r=>r.mode==="voice"&&(r.sec==="repeat"||r.sec==="builds"||r.sec==="conv"));
+  const fp=spoken.filter(r=>r.sec!=="conv"&&r.flu!=null);
+  const flu=avg(fp.map(r=>r.flu)), pro=avg(fp.map(r=>r.pro));
   const voiceUsed=mic&&spoken.length>0;
+  const wavg=pairs=>{ const ok=pairs.filter(([v])=>v!=null); if(!ok.length)return null; const w=ok.reduce((n,[,x])=>n+x,0); return ok.reduce((n,[v,x])=>n+v*x,0)/w; };
   const speakContent=avg([part.repeat,part.builds,part.conv]);
   const raw={
-    speaking:voiceUsed?.4*speakContent+.3*(flu??0)+.3*(pro??0):null,
-    listening:avg([part.repeat,part.builds,part.conv,part.dict]),
-    reading:(2*part.fib+part.pass)/3,
-    writing:(part.fib+part.dict+2*part.pass)/4
+    speaking:voiceUsed?(flu!=null?.4*speakContent+.3*flu+.3*(pro??0):speakContent):null,
+    listening:wavg([[part.repeat,1],[part.builds,1],[part.conv,1],[part.dict,1]]),
+    reading:wavg([[part.fib,2],[part.pass,1]]),
+    writing:wavg([[part.fib,1],[part.dict,1],[part.pass,2]])
   };
   const sc={}; Object.entries(raw).forEach(([k,v])=>sc[k]=v==null?null:mkScale(v));
   const present=Object.values(sc).filter(v=>v!=null);
-  sc.overall=Math.round(present.reduce((a,b)=>a+b,0)/present.length);
-  sc.fluency=voiceUsed?mkScale(flu??0):null; sc.pronunciation=voiceUsed?mkScale(pro??0):null;
-  sc.part=Object.fromEntries(Object.entries(part).map(([k,v])=>[k,Math.round(v*100)]));
+  sc.overall=present.length?Math.round(present.reduce((a,b)=>a+b,0)/present.length):null;
+  sc.fluency=voiceUsed&&flu!=null?mkScale(flu):null; sc.pronunciation=voiceUsed&&flu!=null?mkScale(pro??0):null;
+  sc.part=Object.fromEntries(Object.entries(part).map(([k,v])=>[k,v==null?null:Math.round(v*100)]));
   return sc;
 }
-function mkFinish(){
-  const att={date:Date.now(),len:T.len,mic:T.mic,res:T.res};
+function mkStopEarly(){
+  if(T.dead)return;
+  clearTimers(); T.tok++; mkHush(); try{T.rec&&T.rec.abort()}catch(e){}
+  if(!T.res.length){ mockAbort(); mkView.quit=true; render(); return; }
+  mkFinish(true);
+}
+function mkFinish(early){
+  const total=T.parts.reduce((n,p)=>n+p.items.length,0);
+  const att={date:Date.now(),len:T.len,mic:T.mic,res:T.res,only:T.only||null,early:!!early,total};
   att.scores=mkCompute(att.res,att.mic);
   const hist=mkLoad(MK_HIST,[]); hist.unshift({...att,res:att.res.map(({audio,...r})=>r)}); mkSave(MK_HIST,hist.slice(0,10));
   clearTimers(); mkHush(); mkView.report=att;
-  const w=vtScreen(`<h1 class="vt-h1">You have completed the test</h1>
-  <div class="vt-band">Your answers have been scored. Thank you.</div>
-  <p class="vt-meta">${att.res.length} questions answered in ${T.parts.length} parts.</p>
+  const w=vtScreen(`<h1 class="vt-h1">${early?"Test ended early":"You have completed the test"}</h1>
+  <div class="vt-band">${early?`You answered ${att.res.length} of ${total} questions. Your score is based only on the questions you reached.`:"Your answers have been scored. Thank you."}</div>
+  <p class="vt-meta">${att.res.length} question${att.res.length>1?"s":""} answered.</p>
   <div class="vt-ctl"><span class="grow"></span>${vtNext("See my score report")}</div>`);
   w.querySelector("#vtNext").onclick=()=>{ mockAbort(); render(); window.scrollTo(0,0); };
 }
 
 /* ---------- report ---------- */
-function mkBar(name,score){
-  if(score==null) return `<div class="skill"><span class="nm">${name}</span><span class="hint" style="margin:0">Not scored (no microphone)</span><span></span></div>`;
+function mkBar(name,score,why){
+  if(score==null) return `<div class="skill"><span class="nm">${name}</span><span class="hint" style="margin:0">${why||"Not tested"}</span><span></span></div>`;
   const pct=x=>(x-20)/60*100;
   return `<div class="skill"><span class="nm">${name}</span><div class="track" role="img" aria-label="${name} ${score} out of 80"><div class="fill" style="width:${pct(score)}%"></div>${[26,36,47,58,69,79].map(t=>`<span class="tk" style="left:${pct(t)}%"></span>`).join("")}</div><span class="sc">${score}</span></div>`;
 }
@@ -1772,22 +1798,25 @@ function mkReviewBody(r){
 }
 function mkReport(att){
   const s=att.scores, silent=att.res.filter(r=>!r.said).length, total=att.res.length;
-  main.innerHTML=`<div class="mk-head"><h2 style="margin:0">Score report</h2><span class="hint" style="margin:0">${new Date(att.date).toLocaleString([], {dateStyle:"medium",timeStyle:"short"})} · ${att.len==="full"?"Full":"Short"} test</span></div>
+  const onlyP=att.only&&MK_BLUEPRINT.find(p=>p.id===att.only);
+  const kind=onlyP?`Part ${onlyP.letter} · ${onlyP.name} test`:`${att.len==="full"?"Full":"Short"} test`;
+  main.innerHTML=`<div class="mk-head"><h2 style="margin:0">Score report</h2><span class="hint" style="margin:0">${new Date(att.date).toLocaleString([], {dateStyle:"medium",timeStyle:"short"})} · ${kind}</span></div>
+  ${att.early?`<div class="fb bad">You ended the test early and answered ${total} of ${att.total} questions. These scores use only the questions you reached, so treat them as a rough guide.</div>`:""}
   ${(()=>{ const n=att.res.reduce((a,r)=>a+(r.replays||0),0); return n?`<div class="fb bad">You replayed the audio ${n} time${n>1?"s":""}. The real test plays it only once, so your real score may be lower.</div>`:""; })()}
   ${att.res.some(r=>r.audio)?`<p class="hint">Your recordings are under “Your answers” below. They are cleared when you close or reload this page.</p>`:""}
   ${silent/total>.4?`<div class="fb bad">You didn’t answer ${silent} of ${total} questions. The real test may not report a score when this many answers are missing.</div>`:""}
   <div class="card"><div class="mk-overall"><div class="mk-big">${s.overall}<small> / 80</small></div>
-  <div><div class="mk-cefr">CEFR ${mkCefr(s.overall)}</div><p class="hint" style="margin:4px 0 0">Overall score on the Versant 20–80 scale. It is the average of the skill scores below.</p></div></div></div>
+  <div><div class="mk-cefr">CEFR ${mkCefr(s.overall)}</div><p class="hint" style="margin:4px 0 0">${onlyP?`Score for this part on the Versant 20–80 scale, from the skills Part ${onlyP.letter} measures.`:"Overall score on the Versant 20–80 scale. It is the average of the skill scores below."}</p></div></div></div>
   <div class="card"><h3>Skill scores</h3>
-  ${mkBar("Speaking",s.speaking)}${mkBar("Listening",s.listening)}${mkBar("Reading",s.reading)}${mkBar("Writing",s.writing)}
+  ${mkBar("Speaking",s.speaking,att.res.some(r=>["repeat","builds","conv"].includes(r.sec))?"Not scored (no microphone)":"Not tested")}${mkBar("Listening",s.listening)}${mkBar("Reading",s.reading)}${mkBar("Writing",s.writing)}
   <div class="bands" aria-hidden="true">${[["A1",26],["A2",36],["B1",47],["B2",58],["C1",69],["C2",79]].map(([l,v])=>`<span style="left:${(v-20)/60*100}%">${l}</span>`).join("")}</div>
   ${s.fluency!=null?`<div class="mk-traits"><div>Fluency <b>${s.fluency}</b></div><div>Pronunciation <b>${s.pronunciation}</b></div></div><p class="hint" style="margin-top:8px">Fluency comes from how quickly you start and how smoothly you speak. Pronunciation comes from how confidently the speech recogniser understood your words.</p>`:""}</div>
   <div class="card"><h3>By part</h3><div class="tblwrap"><table class="mk-table"><thead><tr><th>Part</th><th>Questions</th><th>Accuracy</th></tr></thead><tbody>
-  ${MK_BLUEPRINT.map(p=>`<tr><td>${p.letter}. ${p.name}</td><td class="n">${att.res.filter(r=>r.sec===p.id).length}</td><td class="n">${s.part[p.id]}%</td></tr>`).join("")}</tbody></table></div></div>
+  ${MK_BLUEPRINT.filter(p=>!onlyP||p===onlyP).map(p=>`<tr><td>${p.letter}. ${p.name}</td><td class="n">${att.res.filter(r=>r.sec===p.id).length}</td><td class="n">${s.part[p.id]==null?"Not reached":s.part[p.id]+"%"}</td></tr>`).join("")}</tbody></table></div></div>
   <div class="card"><h3>Your answers</h3><p class="hint">${LEGEND.replace(/<\/?div[^>]*>/g,"")}</p>
   ${MK_BLUEPRINT.map(p=>{ const rs=att.res.filter(r=>r.sec===p.id); return rs.length?`<details class="rev"><summary>${p.letter}. ${p.name} · ${s.part[p.id]}%</summary>${rs.map(mkReviewItem).join("")}</details>`:""; }).join("")}</div>
-  <div class="btns"><button class="primary" id="mkAgain">Take another test</button><button id="mkHome">Back to mock test home</button></div>`;
-  main.querySelector("#mkAgain").onclick=()=>{ mkView.report=null; mkBegin(att.len); };
+  <div class="btns"><button class="primary" id="mkAgain">${onlyP?`Take Part ${onlyP.letter} again`:"Take another test"}</button><button id="mkHome">Back to mock test home</button></div>`;
+  main.querySelector("#mkAgain").onclick=()=>{ mkView.report=null; mkBegin(att.len,att.only); };
   main.querySelector("#mkHome").onclick=()=>{ mkView.report=null; render(); window.scrollTo(0,0); };
 }
 
