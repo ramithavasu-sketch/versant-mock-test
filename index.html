@@ -1351,13 +1351,16 @@ function mkPassage(p,text){
 }
 
 /* ---------- audio ---------- */
+/* each playback gets a number; stopping bumps it so a cancelled queue can never carry on */
+let mkSayGen=0;
+function mkHush(){ mkSayGen++; if(hasTTS)speechSynthesis.cancel(); }
 function mkSay(parts,done){
   if(!hasTTS){ done(); return; }
-  speechSynthesis.cancel(); let k=0;
-  const next=()=>{ if(T.dead)return; if(k>=parts.length){ later(done,250); return; }
+  mkHush(); const gen=mkSayGen; let k=0;
+  const next=()=>{ if(T.dead||gen!==mkSayGen)return; if(k>=parts.length){ later(done,250); return; }
     const p=parts[k++], u=new SpeechSynthesisUtterance(p.t), v=voiceFor(p.v||0);
     if(v){u.voice=v;u.lang=v.lang}else u.lang="en-US"; u.rate=parseFloat(rateSel.value); u.volume=mkVol;
-    let fired=false; const fin=()=>{ if(fired)return; fired=true; later(next,k>=parts.length?0:(p.gap||650)); };
+    let fired=false; const fin=()=>{ if(fired||gen!==mkSayGen)return; fired=true; later(next,k>=parts.length?0:(p.gap||650)); };
     u.onend=fin; u.onerror=fin; later(fin,2500+p.t.length*130/u.rate); speechSynthesis.speak(u); };
   later(next,150);
 }
@@ -1383,7 +1386,7 @@ let T={dead:true,timers:[]};
 function later(fn,ms){ const id=setTimeout(()=>{ if(!T.dead)fn(); },ms); T.timers.push(id); return id; }
 function every(fn,ms){ const id=setInterval(()=>{ if(T.dead)clearInterval(id); else fn(); },ms); T.timers.push(id); return id; }
 function clearTimers(){ T.timers.forEach(id=>{clearTimeout(id);clearInterval(id)}); T.timers=[]; }
-function mockAbort(){ const o=document.getElementById("vt"); if(o)o.remove(); if(T.dead)return; T.dead=true; clearTimers(); try{T.rec&&T.rec.abort()}catch(e){} if(hasTTS)speechSynthesis.cancel(); document.body.classList.remove("intest"); }
+function mockAbort(){ const o=document.getElementById("vt"); if(o)o.remove(); if(T.dead)return; T.dead=true; clearTimers(); try{T.rec&&T.rec.abort()}catch(e){} mkHush(); if(mkStream){ mkStream.getTracks().forEach(t=>t.stop()); mkStream=null; } document.body.classList.remove("intest"); }
 window.mockAbort=mockAbort;
 let mkMic=null; // null = not checked, true = working, false = not available
 let mkView={len:"full",report:null,quit:false,replay:false,record:false};
@@ -1417,6 +1420,7 @@ function renderMock(){
       <label class="vt-choice"><input type="radio" name="mklen" id="mklen-short" value="short" ${mkView.len==="short"?"checked":""}> <span><b>Short test</b> · ${n("short")} questions, about 15 min</span></label></div>
     <div><div class="vt-lab">2. Microphone</div>
       <p class="vt-note">Parts A–C are spoken. Use Chrome, allow the microphone, and wear headphones.</p>
+      ${location.protocol==="file:"?`<p class="vt-note" style="color:#B33A3A">Opened as a file, Chrome asks for the microphone on every question. Open the app with <b>Start Versant Practice</b> instead and it asks only once.</p>`:""}
       <div class="mk-mic"><button class="vt-small" id="mkMicBtn" ${SR?"":"disabled"}>Test microphone</button><span id="mkMicState">${!SR?`<span class="pill bad">This browser can’t recognise speech</span>`:mkMic===true?`<span class="pill ok">Microphone working</span>`:mkMic===false?`<span class="pill bad">Microphone not working</span>`:`<span class="pill">Not tested yet</span>`}</span></div>
       <p class="heard" id="mkHeard"></p>
       <p class="vt-note" id="mkNoMic" ${mkMic===true?"hidden":""}>Without a working microphone you type Parts A–C and get no Speaking score.</p></div>
@@ -1491,7 +1495,8 @@ const vtHead=(p,right)=>`<div class="vt-head"><div class="vt-title"><span class=
 async function mkBegin(len){
   const mic=mkMic===true&&!!SR;
   let record=mic&&mkView.record&&!!window.MediaRecorder;
-  if(record){ try{ await mkGetStream(); }catch(e){ record=false; } }
+  // ask for the microphone once and keep it open for the whole test
+  if(mic&&navigator.mediaDevices){ try{ await mkGetStream(); }catch(e){ record=false; } } else record=false;
   T={dead:false,timers:[],len,mic,record,replay:mkView.replay&&hasTTS,tok:0,itemReplays:0,skip:null,parts:MK_BLUEPRINT.map(p=>({...p,items:mkPick(p.id,p[len])})),pi:0,ii:0,res:[]};
   document.body.classList.add("intest"); vtWelcome();
 }
@@ -1516,7 +1521,7 @@ function vtOverview(){
   w.querySelector("#vtNext").onclick=()=>{ T.pi=0; mkIntro(); }; w.querySelector("#vtNext").focus();
 }
 function mkIntro(){
-  clearTimers(); if(hasTTS)speechSynthesis.cancel();
+  clearTimers(); mkHush();
   const p=T.parts[T.pi], ex=EX[p.id], typedSpeak=p.how==="speak"&&!T.mic;
   const a=typedSpeak?[ex.a[0],p.id==="builds"?"You tap:":"You type:"]:ex.a;
   const leftIcon=a[0]==="You read:"?"read":"hear", rightIcon=a[1]==="You say:"?"say":"type";
@@ -1530,7 +1535,7 @@ function mkIntro(){
   <div class="vt-ctl"><span class="grow"></span><button class="vt-btn" id="vtReplay">${ICON.replay}<span>Replay</span></button>${vtNext()}</div>`);
   const narrate=()=>{ const parts=[{t:ex.ins,gap:700}]; if(ex.audio){ parts.push({t:"For example.",gap:500},...ex.audio.map(x=>({...x,gap:x.gap||600}))); if(ex.ans)parts.push({t:"You say: "+ex.ans}); } mkSay(parts,()=>{}); };
   w.querySelector("#vtReplay").onclick=narrate;
-  w.querySelector("#vtNext").onclick=()=>{ clearTimers(); if(hasTTS)speechSynthesis.cancel(); T.ii=0; mkItem(); };
+  w.querySelector("#vtNext").onclick=()=>{ clearTimers(); mkHush(); T.ii=0; mkItem(); };
   w.querySelector("#vtNext").focus({preventScroll:true});
   narrate();
 }
@@ -1566,7 +1571,7 @@ function mkCountdown(c,secs,onEnd){
 const CD=`<div class="cd"><span data-cd style="width:100%"></span></div><div class="cdtxt" data-cdt></div>`;
 
 function mkDone(r){
-  const p=T.parts[T.pi]; clearTimers(); T.tok++; T.skip=null; try{T.rec&&T.rec.abort()}catch(e){} if(hasTTS)speechSynthesis.cancel();
+  const p=T.parts[T.pi]; clearTimers(); T.tok++; T.skip=null; try{T.rec&&T.rec.abort()}catch(e){} mkHush();
   T.res.push({sec:p.id,i:p.items[T.ii],replays:T.itemReplays,...r});
   if(T.ii<p.items.length-1){ T.ii++; later(mkItem,700); }
   else if(T.pi<T.parts.length-1){ T.pi++; later(mkIntro,500); }
@@ -1738,7 +1743,7 @@ function mkFinish(){
   const att={date:Date.now(),len:T.len,mic:T.mic,res:T.res};
   att.scores=mkCompute(att.res,att.mic);
   const hist=mkLoad(MK_HIST,[]); hist.unshift({...att,res:att.res.map(({audio,...r})=>r)}); mkSave(MK_HIST,hist.slice(0,10));
-  clearTimers(); if(hasTTS)speechSynthesis.cancel(); mkView.report=att;
+  clearTimers(); mkHush(); mkView.report=att;
   const w=vtScreen(`<h1 class="vt-h1">You have completed the test</h1>
   <div class="vt-band">Your answers have been scored. Thank you.</div>
   <p class="vt-meta">${att.res.length} questions answered in ${T.parts.length} parts.</p>
