@@ -265,6 +265,35 @@ details.rev summary{cursor:pointer;font-weight:600}
 #vlGo:disabled{opacity:.5}
 .vl-msg{background:#E6F3EB;color:#2F7D4F;padding:8px 12px;border-radius:3px;margin:0 0 16px}
 #whoBtn b{font-weight:600}
+
+/* practice parts in the test look; fixed light palette like the real test */
+.vt-home{--ink:#2A2A2A;--muted:#6B6B6B;--line:#D6D6D6;--soft:#F5F6F8;--sheet:#FFFFFF;--ok:#2F7D4F;--okbg:#E6F3EB;--bad:#B33A3A;--badbg:#F8E7E7;--mark:#F2D45C;--accent:#2B4373;--onaccent:#FFFFFF}
+.vt-prac .vt-tag{font-size:.85rem}
+.vt-prac .vt-prompt{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.vt-play{width:100%;border:0;cursor:pointer;min-height:150px;font:inherit;font-weight:600;margin-bottom:12px}
+.vt-play span{font-size:.95rem}
+.vt-play.on svg{animation:pulse 1.2s infinite}
+.vt-play:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+.vt-pbody{min-height:0;font-size:1rem;line-height:1.6;padding:20px 22px}
+.vt-pbody .serif{font-family:inherit;font-size:1.12rem}
+.vt-prac [data-k="play"]{display:none}
+.vt-prac .btns button,.vt-prac .vt-pbody button:not(.tile){border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:3px;padding:6px 14px;font-size:.88rem}
+.vt-prac .vt-pbody button.primary{background:var(--navy);border-color:var(--navy);color:#fff;font-weight:600}
+.vt-prac .textin{background:#fff;border-color:#9AA3AF;border-radius:2px}
+.vt-prac .passage{background:#fff}
+.vt-prac .compare div{background:var(--soft)}
+.vt-go{font-size:.88rem;color:var(--sub);display:flex;align-items:center;gap:6px}
+.vt-go select{border:1px solid var(--rule);border-radius:3px;padding:3px 6px;background:#fff;color:var(--txt)}
+.vt-btn:disabled{opacity:.35;cursor:default}
+.vt-prog{margin-top:24px;border-top:1px solid var(--rule);padding-top:14px}
+.vt-tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.vt-choose{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:22px}
+.vt-choice-card{display:flex;flex-direction:column;gap:6px;text-align:left;background:#fff;border:1px solid var(--rule);border-radius:4px;padding:16px 18px;color:var(--sub);font:inherit;font-size:.9rem;cursor:pointer}
+.vt-choice-card:hover{border-color:var(--navy2)}
+.vt-choice-card:focus-visible{outline:2px solid var(--navy2);outline-offset:2px}
+.vt-cc-h{display:flex;align-items:center;gap:8px;font-size:1.05rem;font-weight:700;color:var(--navy)}
+.vt-cc-h svg{color:var(--navy2)}
+#pTest{border-color:var(--navy2);box-shadow:inset 4px 0 0 var(--navy2)}
 </style>
 </head>
 <body>
@@ -1274,24 +1303,62 @@ function renderOverview(){
   main.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>go(b.dataset.go));
 }
 
+const PRAC_MODE={};   // per part: "intro" (part page) or "practice"; resets when the page reloads
 function renderSection(sec){
-  const s=S(sec);
+  const s=S(sec), bp=MK_BLUEPRINT.find(p=>p.id===sec.id), ex=EX[sec.id];
   const view=s.wrongOnly?s.order.filter(i=>s.res[i]==="bad"):s.order;
   if(s.pos>=view.length)s.pos=Math.max(0,view.length-1);
   const c=counts(sec);
-  main.innerHTML=`<h2>${sec.name}</h2><p class="tip">${sec.tip}</p>
-  <div class="stats"><span class="ok"><b>${c.ok}</b> correct</span><span class="bad"><b>${c.bad}</b> wrong</span><span><b>${c.left}</b> not tried</span><span><b>${c.ok+c.bad?Math.round(c.ok/(c.ok+c.bad)*100)+"%":"–"}</b> score</span></div>
-  <div class="progress"><span class="p-ok" style="width:${c.ok/c.total*100}%"></span><span class="p-bad" style="width:${c.bad/c.total*100}%"></span></div>
-  <div class="tools"><button class="primary" data-a="astest">Take this part as a timed test</button><button data-a="wrong">${s.wrongOnly?"Show all questions":"Practise wrong ones only"}</button><button data-a="shuffle">Shuffle order</button><button data-a="reset">Start this section over</button></div>
-  <div class="card" id="card"></div>
-  <div class="nav"><button data-a="prev">Previous</button><button class="primary" data-a="next">Next</button>
-  <label class="speed">Go to <select id="jump"></select></label></div>`;
+  const stats=`<div class="stats"><span class="ok"><b>${c.ok}</b> correct</span><span class="bad"><b>${c.bad}</b> wrong</span><span><b>${c.left}</b> not tried</span><span><b>${c.ok+c.bad?Math.round(c.ok/(c.ok+c.bad)*100)+"%":"–"}</b> score</span></div>
+  <div class="progress"><span class="p-ok" style="width:${c.ok/c.total*100}%"></span><span class="p-bad" style="width:${c.bad/c.total*100}%"></span></div>`;
+  const top=`<div class="vt-top"><div class="vt-brand">${ICON.waves}<span>4 SKILLS PRACTICE</span></div><span class="vt-tag">Part ${bp.letter} · ${sec.skill}</span></div>`;
+
+  /* part page: instructions and example, then choose a timed test or practice */
+  if(PRAC_MODE[sec.id]!=="practice"){
+    const a=ex.a, li=a[0]==="You read:"?"read":"hear", ri=a[1]==="You say:"?"say":"type";
+    main.innerHTML=`<div class="vt-home vt-prac">${top}<div class="vt-wrap">
+    ${vtHead(bp,"Instructions")}
+    <div class="vt-band">${ex.ins}</div>
+    <div class="vt-ex">
+      <div><div class="vt-lab">${a[0]}</div><div class="vt-panel ${li==="read"?"read":"listen"} small"><p>${ex.hear}</p><span class="vt-corner">${ICON[li]}</span></div></div>
+      <div><div class="vt-lab">${a[1]}</div><div class="vt-panel speak small"><p><i>${esc(ex.say)}</i></p><span class="vt-corner">${ICON[ri]}</span></div></div>
+    </div>
+    <div class="vt-ctl" style="margin-top:14px"><span class="grow"></span><button class="vt-btn" id="pReplay">${ICON.replay}<span>Replay example</span></button></div>
+    <div class="vt-choose">
+      <button class="vt-choice-card" id="pTest"><span class="vt-cc-h">${ICON.next} Timed test</span><span>${bp[mkView.len]} questions, ${bp.time.toLowerCase()}. Audio plays once and you get a 20–80 score, like the real test.</span></button>
+      <button class="vt-choice-card" id="pPrac"><span class="vt-cc-h">${ICON.replay} Practise question by question</span><span>${c.total} questions. No time limit: replay the audio, check each answer and see what you missed.</span></button>
+    </div>
+    <div class="vt-prog"><div class="vt-lab">Your practice so far</div>${stats}</div>
+    </div></div>`;
+    const narrate=()=>{ if(!hasTTS)return; const parts=[{t:ex.ins,gap:700}]; if(ex.audio){ parts.push({t:"For example.",gap:500},...ex.audio.map(x=>({...x,gap:x.gap||600}))); if(ex.ans)parts.push({t:"You say: "+ex.ans}); } speak(parts); };
+    main.querySelector("#pReplay").onclick=narrate;
+    main.querySelector("#pTest").onclick=()=>{ if(hasTTS)speechSynthesis.cancel(); current="mock"; drawTabs(); mkView.report=null; render(); mkBegin(mkView.len,sec.id); };
+    main.querySelector("#pPrac").onclick=()=>{ if(hasTTS)speechSynthesis.cancel(); PRAC_MODE[sec.id]="practice"; render(); window.scrollTo(0,0); };
+    return;
+  }
+
+  /* practice screen, laid out like a test question */
+  const listen=["repeat","builds","conv","dict"].includes(sec.id)&&hasTTS;
+  main.innerHTML=`<div class="vt-home vt-prac">${top}<div class="vt-wrap">
+  ${vtHead(bp,`<span id="pCount"></span>`)}
+  <p class="vt-prompt">${({repeat:"Listen, then repeat the sentence.",builds:"Listen, then say the phrases as one sentence.",conv:"Listen to the conversation, then answer the question.",fib:"Type one word that fits the sentence.",dict:"Listen, then type exactly what you hear.",pass:"Read the paragraph, then rewrite it from memory."})[sec.id]} <span class="badge ${""}" id="badge"></span></p>
+  ${listen?`<button class="vt-panel listen vt-play" id="pPlay" aria-label="Play the audio">${ICON.hear}<span>Tap to listen</span></button>`:""}
+  <div class="vt-sheet vt-pbody" id="card"></div>
+  <div class="vt-ctl"><button class="vt-btn" data-a="prev">${ICON.next.replace('M9 16h12m-5-6 6 6-6 6','M23 16H11m5-6-6 6 6 6')}<span>Previous</span></button>
+    <label class="vt-go">Go to <select id="jump"></select></label><span class="grow"></span>
+    <button class="vt-btn" data-a="next"><span>Next</span>${ICON.next}</button></div>
+  <div class="vt-prog">${stats}
+    <div class="vt-tools"><button class="vt-small primary" data-a="astest">Take Part ${bp.letter} as a timed test</button><button class="vt-small" data-a="wrong">${s.wrongOnly?"Show all questions":"Practise wrong ones only"}</button><button class="vt-small" data-a="shuffle">Shuffle order</button><button class="vt-small" data-a="reset">Start this part over</button><button class="vt-small" data-a="intro">Part ${bp.letter} instructions</button></div></div>
+  </div></div>`;
   const card=main.querySelector("#card");
   main.querySelector('[data-a="astest"]').onclick=()=>{ current="mock"; drawTabs(); mkView.report=null; render(); mkBegin(mkView.len,sec.id); };
+  main.querySelector('[data-a="intro"]').onclick=()=>{ PRAC_MODE[sec.id]="intro"; render(); window.scrollTo(0,0); };
   main.querySelector('[data-a="wrong"]').onclick=()=>{ s.wrongOnly=!s.wrongOnly; s.pos=0; save(); render(); };
   main.querySelector('[data-a="shuffle"]').onclick=()=>{ const a=s.order; for(let k=a.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[a[k],a[j]]=[a[j],a[k]]} s.pos=0; save(); render(); };
-  main.querySelector('[data-a="reset"]').onclick=()=>{ if(!confirm(`Clear all your answers in ${sec.name}?`))return; delete ST[sec.id]; save(); render(); };
-  if(!view.length){ card.innerHTML=`<div class="empty">${s.wrongOnly?"No wrong answers to practise. Choose “Show all questions” to keep going.":"No questions here."}</div>`; main.querySelector('.nav').classList.add("hidden"); return; }
+  const rb=main.querySelector('[data-a="reset"]');
+  rb.onclick=()=>{ if(!rb.dataset.sure){ rb.dataset.sure=1; rb.textContent="Click again to clear all your answers here"; setTimeout(()=>{ if(rb.isConnected){ delete rb.dataset.sure; rb.textContent="Start this part over"; } },4000); return; } delete ST[sec.id]; save(); render(); };
+  if(!view.length){ card.innerHTML=`<div class="empty">${s.wrongOnly?"No wrong answers to practise. Choose “Show all questions” to keep going.":"No questions here."}</div>`; main.querySelector('.vt-ctl').hidden=true; const pp=main.querySelector("#pPlay"); if(pp)pp.hidden=true; return; }
+  main.querySelector("#pCount").textContent=`${s.pos+1} / ${view.length}`;
   const jump=main.querySelector("#jump");
   jump.innerHTML=view.map((_,n)=>`<option value="${n}" ${n===s.pos?"selected":""}>${n+1}</option>`).join("");
   jump.onchange=()=>{ s.pos=+jump.value; save(); render(); };
@@ -1301,10 +1368,13 @@ function renderSection(sec){
   prev.onclick=()=>{ s.pos--; save(); render(); };
   next.onclick=nextFn;
   const i=view[s.pos];
-  card.innerHTML=`<div class="cardtop"><span>Question ${s.pos+1} of ${view.length}</span><span class="badge ${s.res[i]||""}" id="badge">${s.res[i]==="ok"?"Correct":s.res[i]==="bad"?"Wrong":""}</span></div><div id="body"></div>`;
+  const badge=main.querySelector("#badge"); const setBadge=r=>{ badge.className="badge "+(r||""); badge.textContent=r==="ok"?"Correct":r==="bad"?"Wrong":""; }; setBadge(s.res[i]);
+  card.innerHTML=`<div id="body"></div>`;
   const api={res:s.res[i],ans:s.ans[i],next:nextFn,
-    mark(r,ans){ s.res[i]=r; if(ans!==undefined)s.ans[i]=ans; api.res=r; save(); const b=card.querySelector("#badge"); b.className="badge "+r; b.textContent=r==="ok"?"Correct":"Wrong"; refreshStats(sec); }};
+    mark(r,ans){ s.res[i]=r; if(ans!==undefined)s.ans[i]=ans; api.res=r; save(); setBadge(r); refreshStats(sec); }};
   R[sec.id](i,card.querySelector("#body"),api);
+  const pp=main.querySelector("#pPlay"), pb=card.querySelector('[data-k="play"]');
+  if(pp&&pb){ pp.onclick=()=>{ pb.click(); pp.classList.add("on"); setTimeout(()=>pp.classList.remove("on"),2500); }; }
   const first=card.querySelector("input,textarea"); if(first&&!api.res&&sec.id!=="pass"&&sec.id!=="repeat") first.focus({preventScroll:true});
 }
 
